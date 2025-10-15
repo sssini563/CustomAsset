@@ -1,0 +1,68 @@
+@extends('layouts/default')
+@section('title') Edit License Document {{ $document->document_number }} @stop
+@section('content')
+<div class="box box-default">
+  <div class="box-header with-border"><h3 class="box-title">Edit License {{ $document->document_number }}</h3></div>
+  <form method="POST" action="{{ route('documents.update',$document) }}" class="form-horizontal">@csrf
+    <div class="box-body">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="active"><a href="#header" role="tab" data-toggle="tab">Header</a></li>
+        <li><a href="#details" role="tab" data-toggle="tab">License Details</a></li>
+        <li><a href="#signatures" role="tab" data-toggle="tab">Signatures</a></li>
+        <li><a href="#metadata" role="tab" data-toggle="tab">Metadata</a></li>
+      </ul>
+      <div class="tab-content" style="margin-top:20px;">
+        <div class="tab-pane active" id="header">
+          <div class="row"><div class="col-md-6">
+            <div class="form-group"><label class="col-sm-4 control-label">No Tanda Terima</label><div class="col-sm-8"><input value="{{ $document->document_number }}" class="form-control" disabled/></div></div>
+            <div class="form-group"><label class="col-sm-4 control-label">Document Number</label><div class="col-sm-8"><input name="document_no" value="{{ old('document_no',$document->document_no) }}" class="form-control"/></div></div>
+            <div class="form-group"><label class="col-sm-4 control-label">Document Date</label><div class="col-sm-8"><input value="{{ $document->document_date?->format('d F Y') }}" class="form-control" disabled/></div></div>
+            @php $userSig = $document->signatures->firstWhere('role','user'); @endphp
+            <div class="form-group"><label class="col-sm-4 control-label">Requestor &amp; ID</label><div class="col-sm-8">
+              @php $reqName = optional($userSig?->user)->present()->fullName ?? ($userSig?->user_name ?? $document->nama_penerima ?? ''); @endphp
+              <input name="requestor" value="{{ old('requestor', $reqName) }}" class="form-control"/>
+              <p class="help-block">Untuk License, Requestor otomatis diisi dengan User (Penerima) namun bisa diubah.</p>
+            </div></div>
+            <div class="form-group"><label class="col-sm-4 control-label">Organization Structure</label><div class="col-sm-8"><input name="organization_structure" value="{{ old('organization_structure',$document->organization_structure) }}" class="form-control"/></div></div>
+            <div class="form-group"><label class="col-sm-4 control-label">Position</label><div class="col-sm-8"><input name="position" value="{{ old('position',$document->position) }}" class="form-control"/></div></div>
+            <div class="form-group"><label class="col-sm-4 control-label">Location</label><div class="col-sm-8"><input name="location" value="{{ old('location',$document->location) }}" class="form-control"/></div></div>
+          </div></div>
+        </div>
+        <div class="tab-pane" id="details">
+          <div class="row"><div class="col-md-6">
+            <div class="form-group"><label class="col-sm-4 control-label">License Key</label><div class="col-sm-8"><input name="license_key" value="{{ old('license_key',$document->license_key) }}" class="form-control"/></div></div>
+            <div class="form-group"><label class="col-sm-4 control-label">Seats</label><div class="col-sm-8"><input type="number" name="license_seats" value="{{ old('license_seats',$document->license_seats) }}" class="form-control"/></div></div>
+            <div class="form-group"><label class="col-sm-4 control-label">Vendor</label><div class="col-sm-8"><input name="license_vendor" value="{{ old('license_vendor',$document->license_vendor) }}" class="form-control"/></div></div>
+            <div class="form-group"><label class="col-sm-4 control-label">Expiry Date</label><div class="col-sm-8"><input type="date" name="license_expires_at" value="{{ old('license_expires_at', optional($document->license_expires_at)->format('Y-m-d')) }}" class="form-control"/></div></div>
+            <div class="form-group"><label class="col-sm-4 control-label">Catatan</label><div class="col-sm-8"><textarea name="catatan" class="form-control" rows="3">{{ old('catatan',$document->catatan) }}</textarea></div></div>
+          </div></div>
+        </div>
+        <div class="tab-pane" id="signatures">
+          @include('documents.asset.partials.signatures_table', ['document' => $document, 'users' => $users])
+        </div>
+        <div class="tab-pane" id="metadata">
+          @include('documents.asset.partials.metadata', ['document' => $document])
+        </div>
+      </div>
+    </div>
+    <div class="box-footer">
+      <button class="btn btn-primary">Save</button>
+      <a href="{{ route('documents.index', ['type' => 'license']) }}" class="btn btn-default">Cancel</a>
+    </div>
+  </form>
+</div>
+@endsection
+@section('moar_scripts')
+<script type="application/json" id="users-data">{!! json_encode(
+  $users->mapWithKeys(function($u){
+    return [$u->id => [
+      'name' => $u->present()->fullName ?? ($u->name ?? $u->username),
+      'email' => $u->email,
+      'employee_num' => $u->employee_num,
+      'manager_id' => $u->manager_id,
+      'manager_name' => $u->manager?->present()->fullName ?? ($u->manager?->name ?? $u->manager?->username),
+    ]];
+  })
+) !!}</script>
+@include('documents.asset.signatures_script')
+@endsection

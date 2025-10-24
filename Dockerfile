@@ -110,7 +110,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Get dependencies
 USER docker
-RUN COMPOSER_CACHE_DIR=/dev/null composer install --no-dev --working-dir=/var/www/html && rm -rf /var/www/html/vendor/*/*/.git
+RUN COMPOSER_CACHE_DIR=/dev/null COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --working-dir=/var/www/html && rm -rf /var/www/html/vendor/*/*/.git
 USER root
 
 ############### APPLICATION INSTALL/INIT #################

@@ -55,7 +55,7 @@ RUN phpenmod bcmath
 
 RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/8.3/apache2/php.ini
 RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/8.3/cli/php.ini
-RUN sed -i 's/memory_limit = .*/memory_limit = 1024M/' /etc/php/8.3/cli/php.ini
+RUN sed -i 's/memory_limit = .*/memory_limit = -1/' /etc/php/8.3/cli/php.ini
 
 RUN useradd -m --uid 10000 --gid 50 docker
 
@@ -111,7 +111,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Get dependencies
 USER docker
-RUN COMPOSER_CACHE_DIR=/dev/null COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --working-dir=/var/www/html && rm -rf /var/www/html/vendor/*/*/.git
+RUN php -d memory_limit=-1 /usr/bin/composer install --no-dev --optimize-autoloader --working-dir=/var/www/html && rm -rf /var/www/html/vendor/*/*/.git
 USER root
 
 ############### APPLICATION INSTALL/INIT #################

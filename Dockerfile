@@ -55,6 +55,7 @@ RUN phpenmod bcmath
 
 RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/8.3/apache2/php.ini
 RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/8.3/cli/php.ini
+RUN sed -i 's/memory_limit = .*/memory_limit = 1024M/' /etc/php/8.3/cli/php.ini
 
 RUN useradd -m --uid 10000 --gid 50 docker
 

@@ -71,3 +71,11 @@ storage/ldap_client_tls.key
 /storage/framework/testing
 
 /.phpunit.cache
+# Archived unused files
+/_archived/
+
+# Bootstrap cache
+/bootstrap/cache/*.php
+
+# Compiled views
+/storage/framework/views/*.php

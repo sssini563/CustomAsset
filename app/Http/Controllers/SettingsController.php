@@ -280,6 +280,35 @@ class SettingsController extends Controller
         return view('settings/index', compact('settings'));
     }
 
+    /**
+     * Document Metadata Defaults - form
+     */
+    public function getDocumentMetaDefaults(): View
+    {
+        $setting = Setting::getSettings();
+        return view('settings/document_meta_defaults', compact('setting'));
+    }
+
+    /**
+     * Document Metadata Defaults - save
+     */
+    public function postDocumentMetaDefaults(Request $request): RedirectResponse
+    {
+        if (is_null($setting = Setting::getSettings())) {
+            return redirect()->to('admin')->with('error', trans('admin/settings/message.update.error'));
+        }
+        $data = $request->only([
+            'document_default_jenis_dokumen',
+            'document_default_sp_hal',
+            'document_default_pemilik_proses',
+            'document_default_proses_bisnis',
+        ]);
+        $setting->fill($data);
+        $setting->save();
+        return redirect()->route('settings.document_meta_defaults.index')
+            ->with('success', trans('general.saved')); // reuse generic success
+    }
+
 
     /**
      * Return a form to allow a super admin to update settings.

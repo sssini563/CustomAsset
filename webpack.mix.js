@@ -32,6 +32,45 @@ mix
   )
   .version();
 
+// Build each AdminLTE skin individually, copy to dist, and minify+version
+const skinNames = [
+  "black",
+  "blue",
+  "green",
+  "red",
+  "yellow",
+  "purple",
+  "orange",
+  "contrast",
+  "black-dark",
+  "blue-dark",
+  "green-dark",
+  "red-dark",
+  "yellow-dark",
+  "purple-dark",
+  "orange-dark",
+];
+
+skinNames.forEach((name) => {
+  // Compile LESS to build folder
+  mix.less(
+    `./resources/assets/less/skins/skin-${name}.less`,
+    `public/css/build/skins/skin-${name}.css`
+  );
+
+  // Copy unminified to dist for non-user default includes
+  mix.copy(
+    `public/css/build/skins/skin-${name}.css`,
+    `public/css/dist/skins/skin-${name}.css`
+  );
+
+  // Minify the dist file to create .min.css (used for user-selected skins)
+  mix.minify(`public/css/dist/skins/skin-${name}.css`);
+});
+
+// Ensure versioning captures the generated skin assets
+mix.version();
+
 
 /**
  * Copy, minify and version signature-pad.css
@@ -81,30 +120,7 @@ mix
       "./public/js/dist/all.js"
   ).sourceMaps(true, 'source-map', 'source-map').version();
 
-var skins = fs.readdirSync("resources/assets/less/skins");
-
-// Convert the skins to CSS
-for (var i in skins) {
-    mix.less(
-        "resources/assets/less/skins/" + skins[i],
-        "css/dist/skins"
-    )
-}
-
-var css_skins = fs.readdirSync("public/css/dist/skins");
-for (var i in css_skins) {
-    if (css_skins[i].endsWith(".min.css")) {
-        //don't minify already minified skinns
-        continue;
-    }
-    if (css_skins[i].endsWith(".css")) {
-        // only minify files ending with '.css'
-        mix.minify("public/css/dist/skins/" + css_skins[i]).version();
-    }
-    //TODO - if we only ever use the minified versions, this could be simplified down to one line (above)
-    // but it stays like this so we have the minified and non-minified versions of the skins
-    // right now the code seems to use the un-minified skins
-}
+// Skins are enabled via _all-skins.css above
 
 /**
  * Combine bootstrap table css

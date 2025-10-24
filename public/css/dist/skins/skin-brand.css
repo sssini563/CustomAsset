@@ -1,0 +1,222 @@
+/*
+ * Skin: Brand (Custom Theme)
+ * Use this skin to map your organization's theme colors across Snipe-IT.
+ * Fill the palette variables below and rebuild assets (npm run dev/prod).
+ */
+:root {
+  --brand-primary: #3c8dbc;
+  --brand-success: #00a65a;
+  --brand-info: #00c0ef;
+  --brand-warning: #f39c12;
+  --brand-danger: #dd4b39;
+  --brand-link: #3c8dbc;
+  --brand-link-hover: #307095;
+}
+.skin-brand .main-header .navbar {
+  background-color: #3c8dbc;
+}
+.skin-brand .main-header .navbar .nav > li > a {
+  color: #fff;
+}
+.skin-brand .main-header .navbar .nav > li > a:hover,
+.skin-brand .main-header .navbar .nav > li > a:active,
+.skin-brand .main-header .navbar .nav > li > a:focus,
+.skin-brand .main-header .navbar .nav .open > a,
+.skin-brand .main-header .navbar .nav .open > a:hover,
+.skin-brand .main-header .navbar .nav .open > a:focus,
+.skin-brand .main-header .navbar .nav > .active > a {
+  background: rgba(0, 0, 0, 0.1);
+  color: #f6f6f6;
+}
+.skin-brand .main-header .navbar .sidebar-toggle {
+  color: #fff;
+}
+.skin-brand .main-header .navbar .sidebar-toggle:hover {
+  color: #f6f6f6;
+  background: rgba(0, 0, 0, 0.1);
+}
+.skin-brand .main-header .navbar .sidebar-toggle {
+  color: #fff;
+}
+.skin-brand .main-header .navbar .sidebar-toggle:hover {
+  background-color: #367fa9;
+}
+@media (max-width: 767px) {
+  .skin-brand .main-header .navbar .dropdown-menu li.divider {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  .skin-brand .main-header .navbar .dropdown-menu li a {
+    color: #333;
+  }
+  .skin-brand .main-header .navbar .dropdown-menu li a:hover {
+    background: #367fa9;
+  }
+}
+.skin-brand .main-header li.user-header {
+  background-color: #3c8dbc;
+}
+.skin-brand .content-header {
+  background: transparent;
+}
+.skin-brand .sidebar-menu > li > a {
+  color: #b8c7ce;
+}
+.skin-brand .wrapper,
+.skin-brand .main-sidebar,
+.skin-brand .left-side {
+  background-color: #222d32;
+}
+.skin-brand .user-panel > .info,
+.skin-brand .user-panel > .info > a {
+  color: #fff;
+}
+.skin-brand .sidebar-menu > li.header {
+  color: #4b646f;
+  background: #1a2226;
+}
+.skin-brand .sidebar-menu > li > a {
+  border-left: 3px solid transparent;
+}
+.skin-brand .sidebar-menu > li:hover > a,
+.skin-brand .sidebar-menu > li.active > a {
+  color: #fff;
+  background: #1e282c;
+  border-left-color: #3c8dbc;
+}
+.skin-brand .sidebar-menu > li > .treeview-menu {
+  margin: 0 1px;
+  background: #2c3b41;
+}
+.skin-brand .sidebar a {
+  color: #b8c7ce;
+}
+.skin-brand .sidebar a:hover {
+  text-decoration: none;
+}
+.skin-brand .treeview-menu > li > a {
+  color: #8aa4af;
+}
+.skin-brand .treeview-menu > li.active > a,
+.skin-brand .treeview-menu > li > a:hover {
+  color: #fff;
+}
+.skin-brand .sidebar-form {
+  border-radius: 3px;
+  border: 1px solid #374850;
+  margin: 10px 10px;
+}
+.skin-brand .sidebar-form input[type="text"],
+.skin-brand .sidebar-form .btn {
+  box-shadow: none;
+  background-color: #374850;
+  border: 1px solid transparent;
+  height: 35px;
+  transition: all 0.3s ease-in-out;
+}
+.skin-brand .sidebar-form input[type="text"] {
+  color: #666;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 2px;
+}
+.skin-brand .sidebar-form input[type="text"]:focus,
+.skin-brand .sidebar-form input[type="text"]:focus + .input-group-btn .btn {
+  background-color: #fff;
+  color: #666;
+}
+.skin-brand .sidebar-form input[type="text"]:focus + .input-group-btn .btn {
+  border-left-color: #fff;
+}
+.skin-brand .sidebar-form .btn {
+  color: #999;
+  border-top-left-radius: 0;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 0;
+}
+.skin-brand.layout-top-nav .main-header > .logo .logo-variant {
+  background-color: unset;
+}
+.btn.btn-primary,
+btn-sm.btn-primary,
+.btn:hover.btn-primary,
+.btn .btn-primary:link,
+btn-sm .btn-primary:link,
+.btn:hover .btn-primary:link {
+  background-color: #357ca5;
+  border-color: #2d6a8e;
+  color: #fff !important;
+}
+.btna.btn-primary:hover,
+btn-sma.btn-primary:hover,
+.btn:hovera.btn-primary:hover {
+  background-color: #2d6a8e;
+  border-color: #2d6a8e;
+  color: #fff;
+}
+.btn-success {
+  background-color: #00a65a;
+  border-color: #007d44;
+}
+.btn-info {
+  background-color: #00c0ef;
+  border-color: #009fc6;
+}
+.btn-warning {
+  background-color: #f39c12;
+  border-color: #d2850b;
+}
+.btn-danger {
+  background-color: #dd4b39;
+  border-color: #ca3523;
+}
+.btn-warning,
+.btn-warning:link,
+a.btn-warning:hover,
+.btn-warning:visited,
+.btn-danger,
+.btn-danger:link,
+a.btn-danger:hover,
+.btn-danger:visited,
+.btn-info,
+.btn-info:link,
+a.btn-info:hover,
+.btn-info:visited,
+.btn-success,
+.btn-success:link,
+a.btn-success:hover,
+.btn-success:visited {
+  color: #fff;
+}
+.btn-default:link,
+a.btn-default:hover,
+.btn-default:visited {
+  color: #505156;
+}
+a:link {
+  color: #3c8dbc;
+}
+a:visited {
+  color: #367fa9;
+}
+a:hover {
+  color: #307095;
+}
+.text-primary {
+  color: #296282;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: #3c8dbc;
+}
+.fixed-table-container tbody .selected td {
+  background-color: #f9cf8b;
+}
+a.settings_button:link,
+a.settings_button:visited,
+a.settings_button:hover {
+  color: #3c8dbc;
+}
+
+
+/*# sourceMappingURL=skin-brand.css.map*/

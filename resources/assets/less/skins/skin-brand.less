@@ -1,0 +1,148 @@
+/*
+ * Skin: Brand (Custom Theme)
+ * Use this skin to map your organization's theme colors across Snipe-IT.
+ * Fill the palette variables below and rebuild assets (npm run dev/prod).
+ */
+
+@import "../bootstrap-less/mixins.less";
+@import "../bootstrap-less/variables.less";
+@import "../variables.less";
+@import "../mixins.less";
+
+// =============================
+// Theme Palette (EDIT THESE)
+// =============================
+// Primary surface and action color (navbar, active states, primary buttons)
+@brand-primary-color:       @light-blue;   // TODO: replace with your theme primary (e.g., #0F62FE)
+// Semantic/supporting colors
+@brand-success-color:       @green;        // e.g., #24A148
+@brand-info-color:          @aqua;         // e.g., #4589FF
+@brand-warning-color:       @yellow;       // e.g., #F1C21B
+@brand-danger-color:        @red;          // e.g., #DA1E28
+
+// Neutrals and layout
+@brand-body-bg:             @content-bg;   // main content background
+@brand-text-color:          #333;          // default text
+@brand-link-color:          @brand-primary-color;
+@brand-link-hover-color:    darken(@brand-link-color, 10%);
+
+// Sidebar styling (dark by default). Adjust for lighter themes if needed.
+@brand-sidebar-bg:             @sidebar-dark-bg;
+@brand-sidebar-hover-bg:       @sidebar-dark-hover-bg;
+@brand-sidebar-color:          @sidebar-dark-color;
+@brand-sidebar-hover-color:    @sidebar-dark-hover-color;
+@brand-sidebar-submenu-bg:     @sidebar-dark-submenu-bg;
+@brand-sidebar-submenu-color:  @sidebar-dark-submenu-color;
+@brand-sidebar-submenu-hover-color: @sidebar-dark-submenu-hover-color;
+
+// Optional CSS custom properties for downstream overrides
+:root {
+  --brand-primary: @brand-primary-color;
+  --brand-success: @brand-success-color;
+  --brand-info: @brand-info-color;
+  --brand-warning: @brand-warning-color;
+  --brand-danger: @brand-danger-color;
+  --brand-link: @brand-link-color;
+  --brand-link-hover: @brand-link-hover-color;
+}
+
+.skin-brand {
+  // Navbar
+  .main-header {
+    .navbar {
+      .navbar-variant(@brand-primary-color; #fff);
+      .sidebar-toggle {
+        color: #fff;
+        &:hover {
+          background-color: darken(@brand-primary-color, 5%);
+        }
+      }
+      @media (max-width: @screen-header-collapse) {
+        .dropdown-menu {
+          li {
+            &.divider {
+              background-color: rgba(255, 255, 255, 0.1);
+            }
+            a {
+              color: #333;
+              &:hover {
+                background: darken(@brand-primary-color, 5%);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // User dropdown header background
+    li.user-header {
+      background-color: @brand-primary-color;
+    }
+  }
+
+  // Content Header
+  .content-header {
+    background: transparent;
+  }
+
+  // Sidebar (dark variant by default)
+  .sidebar-menu > li > a {
+    color: @brand-sidebar-color;
+  }
+
+  .skin-dark-sidebar(@brand-primary-color);
+}
+
+.skin-brand.layout-top-nav .main-header > .logo {
+  .logo-variant {
+    background-color: unset;
+  }
+}
+
+// Buttons and common accents
+.btn, btn-sm, .btn:hover {
+  &.btn-primary, .btn-primary:link {
+    background-color: darken(@brand-primary-color, 6%);
+    border-color: darken(@brand-primary-color, 12%);
+    color: #fff !important;
+  }
+  &a.btn-primary:hover {
+    background-color: darken(@brand-primary-color, 12%);
+    border-color: darken(@brand-primary-color, 12%);
+    color: #fff;
+  }
+}
+
+.btn-success { background-color: @brand-success-color; border-color: darken(@brand-success-color, 8%); }
+.btn-info    { background-color: @brand-info-color;    border-color: darken(@brand-info-color, 8%); }
+.btn-warning { background-color: @brand-warning-color; border-color: darken(@brand-warning-color, 8%); }
+.btn-danger  { background-color: @brand-danger-color;  border-color: darken(@brand-danger-color, 8%); }
+
+.btn-warning, .btn-warning:link, a.btn-warning:hover, .btn-warning:visited,
+.btn-danger,  .btn-danger:link,  a.btn-danger:hover,  .btn-danger:visited,
+.btn-info,    .btn-info:link,    a.btn-info:hover,    .btn-info:visited,
+.btn-success, .btn-success:link, a.btn-success:hover, .btn-success:visited
+{
+  color: #fff;
+}
+
+.btn-default:link, a.btn-default:hover, .btn-default:visited { color: @dark-gray; }
+
+// Links
+a:link      { color: @brand-link-color; }
+a:visited   { color: darken(@brand-link-color, 5%); }
+a:hover     { color: @brand-link-hover-color; }
+.text-primary { color: darken(@brand-primary-color, 15%); }
+
+// Select2 token color
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: @brand-primary-color;
+}
+
+// Table selection highlight
+.fixed-table-container tbody .selected td { background-color: lighten(@brand-warning-color, 25%); }
+
+// Settings link chips
+a.settings_button:link, a.settings_button:visited, a.settings_button:hover {
+  color: @brand-primary-color;
+}

@@ -30,7 +30,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     healthcheck:
-      # https://mariadb.com/kb/en/using-healthcheck-sh/#compose-file-example
+      # https://mariadb.com/kb/en/using-healthc heck-sh/#compose-file-example
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
       timeout: 1s

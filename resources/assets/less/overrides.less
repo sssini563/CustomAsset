@@ -1,25 +1,20 @@
-.skin-red
-.skin-purple
-.skin-blue
-.skin-black
-.skin-orange
-.skin-yellow
-.skin-green
-.skin-red-dark
-.skin-purple-dark
-.skin-blue-dark
-.skin-black-dark
-.skin-orange-dark
-.skin-yellow-dark
-.skin-green-dark
-.skin-contrast
-.main-header
+@import "bootstrap-less/variables.less";
+@import "variables.less";
 
-.logo {
+/* Ensure logo inherits background without relying on skin classes */
+.main-header .logo {
   background-color: inherit;
 }
+// Default CSS custom properties for single-theme setup
+:root {
+  --brand-primary: @light-blue;
+  --brand-success: @green;
+  --brand-info: @aqua;
+  --brand-warning: @yellow;
+  --brand-danger: @red;
+}
 .main-header .logo {
-  width: 100% !important;
+  /* REMOVED: width: 100% !important; - this breaks the navbar layout */
   white-space: nowrap;
   text-align: left;
   display: block;
@@ -121,26 +116,7 @@ a.accordion-header {
   padding-top: 10px;
 }
 
-.skin-red
-.skin-purple
-.skin-blue
-.skin-black
-.skin-orange
-.skin-yellow
-.skin-green
-.skin-red-dark
-.skin-purple-dark
-.skin-blue-dark
-.skin-black-dark
-.skin-orange-dark
-.skin-yellow-dark
-.skin-green-dark
-.skin-contrast
-.main-header
-.navbar
-.dropdown-menu li a {
-  //color: inherit;
-}
+/* Normalize dropdown link colors without skin prefixes (ruleset removed to avoid empty block) */
 .pull-text-right{
   text-align: right !important;
 }
@@ -161,12 +137,12 @@ a.accordion-header {
 }
 
 .error input {
-  color: #a94442;
-  border: 2px solid #a94442 !important;
+  color: var(--brand-danger);
+  border: 2px solid var(--brand-danger) !important;
 }
 
 .error label, .alert-msg {
-  color: #a94442;
+  color: var(--brand-danger);
   display: block;
 }
 
@@ -196,7 +172,7 @@ a.accordion-header {
   color: #5bc0de;
 }
 .btn-warning{
-  background-color:#f39c12 !important;
+  background-color: var(--brand-warning) !important;
 }
 
 .btn-warning.btn-outline {
@@ -204,7 +180,7 @@ a.accordion-header {
 }
 
 .btn-danger.btn-outline, a.link-danger:link, a.link-danger:visited, a.link-danger:hover {
-  color: #dd4b39;
+  color: var(--brand-danger);
 }
 
 .btn-primary.btn-outline:hover, .btn-success.btn-outline:hover, .btn-info.btn-outline:hover, .btn-warning.btn-outline:hover, .btn-danger.btn-outline:hover {
@@ -278,7 +254,7 @@ a.accordion-header {
 
 .btn-box-tool-lg {
   font-size: 16px;
-  color: orange;
+  color: var(--brand-warning);
 }
 
 
@@ -288,7 +264,7 @@ a.accordion-header {
 /*Form Wizard*/
 .bs-wizard {border-bottom: solid 1px #e0e0e0; padding: 0 0 10px 0;}
 .bs-wizard > .bs-wizard-step {padding: 0; position: relative;}
-.bs-wizard > .bs-wizard-step + .bs-wizard-step {}
+/* Adjacent bs-wizard-step styles not required; removed to avoid empty ruleset */
 .bs-wizard > .bs-wizard-step .bs-wizard-stepnum {color: #595959; font-size: 16px; margin-bottom: 5px;}
 .bs-wizard > .bs-wizard-step .bs-wizard-info {color: #999; font-size: 14px;}
 .bs-wizard > .bs-wizard-step > .bs-wizard-dot {position: absolute; width: 30px; height: 30px; display: block; background: #fbe8aa; top: 45px; left: 50%; margin-top: -15px; margin-left: -15px; border-radius: 50%;}
@@ -308,31 +284,14 @@ a.accordion-header {
 
 .left-navblock {
   display: inline-block;
-  float: left;
   text-align: left;
   color: white;
   padding: 0px;
   /* adjust based on your layout */
 
 }
-.skin-red
-.skin-purple
-.skin-blue
-.skin-black
-.skin-orange
-.skin-yellow
-.skin-green
-.skin-red-dark
-.skin-purple-dark
-.skin-blue-dark
-.skin-black-dark
-.skin-orange-dark
-.skin-yellow-dark
-.skin-green-dark
-.skin-contrast
-.main-header
-.navbar
-.dropdown-menu li a {
+/* Explicit dropdown link color (single theme) */
+.main-header .navbar .dropdown-menu li a {
   color: #333;
 }
 
@@ -342,7 +301,7 @@ a.logo.no-hover a:hover {
 
 
 input:required, select:required {
-  border-right: 5px solid orange;
+  border-right: 5px solid var(--brand-warning);
 }
 select:required + .select2-container .select2-selection, select:required + .select2-container .select2-selection .select2-selection--multiple  {
   border-right: 5px solid orange !important;
@@ -897,7 +856,7 @@ th.css-history > .th-inner::before {
 }
 
 .form-group.has-error label, .form-group.has-error .help-block {
-  color: #a94442;
+  color: var(--brand-danger);
 }
 
 .select2-container--default .select2-selection--multiple {
@@ -1195,6 +1154,7 @@ code.single-line {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
   overflow: hidden;
   max-width: 400px;
 }

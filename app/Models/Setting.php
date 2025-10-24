@@ -71,6 +71,19 @@ class Setting extends Model
         'manager_view_enabled',
         'document_public_token_days',
         'login_background',
+        // Document metadata defaults
+        'document_default_jenis_dokumen',
+        'document_default_sp_hal',
+        'document_default_pemilik_proses',
+        'document_default_proses_bisnis',
+            'document_defaults_asset',
+            'document_defaults_component',
+            'document_defaults_license',
+            'document_defaults_accessory',
+        'document_defaults_consumable',
+        // asset sub-types
+        'document_defaults_asset_form',
+        'document_defaults_asset_sp',
     ];
 
     protected $casts = [
@@ -79,6 +92,17 @@ class Setting extends Model
         'manager_view_enabled' => 'boolean',
         'document_public_token_days' => 'integer',
         'login_background' => 'string',
+        'document_default_jenis_dokumen' => 'string',
+        'document_default_sp_hal' => 'string',
+        'document_default_pemilik_proses' => 'string',
+        'document_default_proses_bisnis' => 'string',
+            'document_defaults_asset' => 'array',
+            'document_defaults_component' => 'array',
+            'document_defaults_license' => 'array',
+            'document_defaults_accessory' => 'array',
+        'document_defaults_consumable' => 'array',
+        'document_defaults_asset_form' => 'array',
+        'document_defaults_asset_sp' => 'array',
     ];
 
     /**

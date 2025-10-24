@@ -8,20 +8,20 @@ class IconHelper
     public static function icon($type) {
         switch ($type) {
             case 'checkout':
-                return 'fa-solid fa-rotate-left';
+                return 'fa-solid fa-right-from-bracket';
             case 'checkin':
-                return 'fa-solid fa-rotate-right';
+                return 'fa-solid fa-right-to-bracket';
             case 'edit':
-                return 'fas fa-pencil-alt';
+                return 'fas fa-pen-to-square';
             case 'clone':
-                return 'far fa-clone';
+                return 'far fa-copy';
             case 'delete':
             case 'upload deleted':
-                return 'fas fa-trash';
+                return 'fas fa-trash-can';
             case 'create':
-                return 'fa-solid fa-plus';
+                return 'fa-solid fa-circle-plus';
             case 'audit':
-                return 'fa-solid fa-clipboard-check';
+                return 'fa-solid fa-list-check';
             case '2fa reset':
                 return 'fa-solid fa-mobile-screen';
             case 'new-user':
@@ -35,11 +35,11 @@ class IconHelper
             case 'user':
                 return 'fa-solid fa-user';
             case 'users':
-                return 'fas fa-users';
+                return 'fas fa-user-friends'; // Changed for modern people icon
             case 'restore':
-                return 'fa-solid fa-trash-arrow-up';
+                return 'fas fa-undo'; // Simpler undo icon
             case 'external-link':
-                return 'fa fa-external-link';
+                return 'fas fa-external-link-alt'; // Modern external link
             case 'email':
                 return 'fa-regular fa-envelope';
             case 'phone':
@@ -55,38 +55,38 @@ class IconHelper
             case 'x':
                 return 'fas fa-times';
             case 'logout':
-                return 'fa fa-sign-out';
+                return 'fa fa-right-from-bracket';
             case 'admin-settings':
-                return 'fas fa-cogs';
+                return 'fas fa-sliders';
             case 'settings':
-                return 'fas fa-cog';
+                return 'fas fa-gear';
             case 'angle-left':
-                return 'fas fa-angle-left';
+                return 'fas fa-chevron-left';
             case 'angle-right':
-                return 'fas fa-angle-right';
+                return 'fas fa-chevron-right';
             case 'warning':
-                return 'fas fa-exclamation-triangle';
+                return 'fas fa-triangle-exclamation';
             case 'kits':
-                return 'fas fa-object-group';
+                return 'fas fa-box-archive';
             case 'assets':
             case 'asset':
-                return 'fas fa-barcode';
+                return 'fas fa-desktop'; // Changed from barcode to desktop for modern look
             case 'accessories':
             case 'accessory':
-                return 'far fa-keyboard';
+                return 'fas fa-mouse'; // Changed from keyboard to mouse for variety
             case 'components':
             case 'component':
-                return 'far fa-hdd';
+                return 'fas fa-microchip'; // Changed from hdd to microchip for modern tech look
             case 'consumables':
             case 'consumable':
-                return 'fas fa-tint';
+                return 'fas fa-box-open'; // Changed from tint to box-open for supplies look
             case 'licenses':
             case 'license':
-                return 'far fa-save';
+                return 'fas fa-certificate'; // Changed from save to certificate for license look
             case 'requestable':
                 return 'fas fa-laptop';
             case 'reports':
-                return 'fas fa-chart-bar';
+                return 'fas fa-chart-pie'; // Changed from chart-bar to chart-pie for variety
             case 'heart':
                 return 'fas fa-heart';
             case 'circle':
@@ -94,98 +94,98 @@ class IconHelper
             case 'circle-solid':
                 return 'fa-solid fa-circle';
             case 'due':
-                return 'fas fa-history';
+                return 'fas fa-clock-rotate-left';
             case 'import':
-                return 'fas fa-cloud-upload-alt';
+                return 'fas fa-file-import';
             case 'search':
-                return 'fas fa-search';
+                return 'fas fa-magnifying-glass';
             case 'alerts':
-                return 'far fa-flag';
+                return 'far fa-bell';
             case 'password':
-                return 'fa-solid fa-key';
+                return 'fa-solid fa-lock';
             case 'api-key':
-                return 'fa-solid fa-user-secret';
+                return 'fa-solid fa-key';
             case 'nav-toggle':
-                return 'fas fa-bars';
+                return 'fas fa-bars-staggered';
             case 'dashboard':
-                return 'fas fa-tachometer-alt';
+                return 'fas fa-chart-line'; // Changed from tachometer to chart-line for modern analytics look
             case 'info-circle':
                     return 'fas fa-info-circle';
             case 'caret-right':
-                return 'fa fa-caret-right';
+                return 'fa fa-chevron-right';
             case 'caret-up':
-                return 'fa fa-caret-up';
+                return 'fa fa-chevron-up';
             case 'caret-down':
-                return 'fa fa-caret-down';
+                return 'fa fa-chevron-down';
             case 'arrow-circle-right':
-                return 'fa fa-arrow-circle-right';
+                return 'fas fa-circle-arrow-right';
             case 'minus':
-                return 'fas fa-minus';
+                return 'fas fa-circle-minus';
             case 'spinner':
                 return 'fas fa-spinner fa-spin';
             case 'copy-clipboard':
-                return 'fa-regular fa-clipboard';
+                return 'fa-regular fa-paste';
             case 'paperclip':
-                return 'fas fa-paperclip';
+                return 'fas fa-link';
             case 'files':
-                return 'fa-regular fa-file';
+                return 'fa-regular fa-file-lines';
             case 'more-info':
-                return 'far fa-life-ring';
+                return 'far fa-circle-question';
             case 'calendar':
-                return 'fas fa-calendar';
+                return 'fas fa-calendar-days';
             case 'plus':
-                return 'fas fa-plus';
+                return 'fas fa-circle-plus';
             case 'history':
-                return 'fas fa-history';
+                return 'fas fa-clock-rotate-left';
             case 'more-files':
                 return 'fa-solid fa-laptop-file';
             case 'maintenances':
-                return 'fas fa-wrench';
+                return 'fas fa-screwdriver-wrench';
             case 'seats':
-                return 'far fa-list-alt';
+                return 'far fa-rectangle-list';
             case 'globe-us':
-                return 'fas fa-globe-americas';
+                return 'fas fa-earth-americas';
             case 'locked':
                 return 'fas fa-lock';
             case 'unlocked':
-                return 'fas fa-lock';
+                return 'fas fa-lock-open';
             case 'locations':
-                return 'fas fa-map-marker-alt';
+                return 'fas fa-location-dot';
             case 'location':
-                return 'fas fa-map-marker-alt';
+                return 'fas fa-location-dot';
             case 'superadmin':
             case 'admin':
-                return 'fas fa-crown';
+                return 'fas fa-user-shield';
             case 'print':
                 return 'fa-solid fa-print';
             case 'checkin-and-delete':
                 return 'fa-solid fa-user-xmark';
             case 'branding':
-                return 'fas fa-copyright';
+                return 'fas fa-palette';
             case 'general-settings':
                 return 'fa-solid fa-list-check';
             case 'groups':
-                return 'fa-solid fa-user-group';
+                return 'fa-solid fa-users-rectangle';
             case 'bell':
                 return 'fa-solid fa-bell';
             case 'hashtag':
                 return 'fa-solid fa-hashtag';
             case 'asset-tags':
-                return 'fas fa-list-ol';
+                return 'fas fa-barcode';
             case 'labels':
-                return 'fas fa-tags';
+                return 'fas fa-tag';
             case 'ldap':
-                return 'fas fa-sitemap';
+                return 'fas fa-diagram-project';
             case 'google':
                 return 'fa-brands fa-google';
             case 'saml':
-                return 'fas fa-sign-in-alt';
+                return 'fas fa-right-to-bracket';
             case 'backups':
-                return 'fas fa-file-archive';
+                return 'fas fa-floppy-disk';
             case 'logins':
-                return 'fas fa-crosshairs';
+                return 'fas fa-right-to-bracket';
             case 'oauth':
-                return 'fas fa-user-secret';
+                return 'fas fa-shield-halved';
             case 'employee_num' :
                 return 'fa-regular fa-id-card';
             case 'department' :
@@ -194,7 +194,7 @@ class IconHelper
                 return 'fa-solid fa-house';
             case 'note':
             case 'notes':
-                return 'fas fa-sticky-note';
+                return 'fas fa-note-sticky';
         }
     }
 }

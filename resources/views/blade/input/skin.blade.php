@@ -29,18 +29,13 @@
     }
 @endphp
 
-<select
-    name="{{ $name }}"
+<select name="{{ $name }}"
     {{ $attributes->merge([
         'class' => 'select2',
         'style' => 'width: 250px;',
-    ]) }}
->
+    ]) }}>
     @foreach ($formats as $value => $label)
-        <option
-            value="{{ $value }}"
-            @selected($value == $selected)
-        >
+        <option value="{{ $value }}" @selected($value == $selected)>
             {{ $label }}
         </option>
     @endforeach

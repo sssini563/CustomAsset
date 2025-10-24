@@ -16,7 +16,7 @@ class Document extends Model
     use HasFactory;
 
     protected $fillable = [
-    'type','asset_id','component_id','license_id','accessory_id','asset_log_id','document_number','document_no','organization_structure','position','location','requestor','document_date','requestor_user_id','checkout_user_name','nama_penerima','atasan_penerima_name','asset_number','gr_number','device_name','serial_number_device','merk','battery','type_device','serial_number_battery','processor','tas','memory','adaptor','hardisk','serial_number_adaptor','serial_number','foto_device','windows','browser','office','other_application_1','other_application_2','other_application_3','other_application_4','antivirus','compress_tools','reader_tool','dokumen_pengembalian_asset','dokumen_surat_pernyataan','catatan','doc_control_no','created_doc','effective_doc','revision_no','revision_date','author_doc','overall_status','pdf_path','completed_at','created_by',
+    'type','asset_id','component_id','license_id','accessory_id','asset_log_id','document_number','document_no','organization_structure','position','location','requestor','document_date','requestor_user_id','checkout_user_name','nama_penerima','atasan_penerima_name','asset_number','gr_number','device_name','serial_number_device','merk','battery','type_device','serial_number_battery','processor','tas','memory','adaptor','hardisk','serial_number_adaptor','serial_number','foto_device','windows','browser','office','other_application_1','other_application_2','other_application_3','other_application_4','antivirus','compress_tools','reader_tool','dokumen_pengembalian_asset','dokumen_surat_pernyataan','catatan','overall_status','pdf_path','completed_at','created_by',
     // License fields
     'license_key','license_seats','license_vendor','license_expires_at',
     // Accessory fields
@@ -30,8 +30,7 @@ class Document extends Model
     protected $casts = [
         'document_date' => 'date',
         'created_doc' => 'date',
-        'effective_doc' => 'date',
-        'revision_date' => 'date',
+        // removed per-document metadata casts; metadata now comes from settings
         'completed_at' => 'datetime',
         'license_expires_at' => 'date',
     ];

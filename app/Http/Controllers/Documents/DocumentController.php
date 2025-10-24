@@ -288,8 +288,22 @@ class DocumentController extends Controller
             $user = User::find($personId);
             if (!$user) { continue; }
             $changed = false;
-            if (array_key_exists('email', $payload)) { $user->email = $payload['email']; $changed = true; }
-            if (array_key_exists('employee_num', $payload)) { $user->employee_num = $payload['employee_num']; $changed = true; }
+            if (array_key_exists('first_name', $payload)) { 
+                $user->first_name = $payload['first_name']; 
+                $changed = true; 
+            }
+            if (array_key_exists('last_name', $payload)) { 
+                $user->last_name = $payload['last_name']; 
+                $changed = true; 
+            }
+            if (array_key_exists('email', $payload)) { 
+                $user->email = $payload['email']; 
+                $changed = true; 
+            }
+            if (array_key_exists('employee_num', $payload)) { 
+                $user->employee_num = $payload['employee_num']; 
+                $changed = true; 
+            }
             if ($changed) { $user->save(); }
         }
         return response()->json(['message'=>'People updated']);
@@ -334,7 +348,9 @@ class DocumentController extends Controller
             $request->validate($rules);
         }
         $data = $request->only([
-            'document_no','organization_structure','position','location','requestor','nama_penerima','atasan_penerima_name','asset_number','gr_number','device_name','serial_number_device','merk','battery','type_device','serial_number_battery','processor','tas','memory','adaptor','hardisk','serial_number_adaptor','serial_number','foto_device','windows','browser','office','other_application_1','other_application_2','other_application_3','other_application_4','antivirus','compress_tools','reader_tool','dokumen_pengembalian_asset','dokumen_surat_pernyataan','catatan','doc_control_no','created_doc','effective_doc','revision_no','revision_date','author_doc'
+            'document_no','organization_structure','position','location','requestor','nama_penerima','atasan_penerima_name','asset_number','gr_number','device_name','serial_number_device','merk','battery','type_device','serial_number_battery','processor','tas','memory','adaptor','hardisk','serial_number_adaptor','serial_number','foto_device','windows','browser','office','other_application_1','other_application_2','other_application_3','other_application_4','antivirus','compress_tools','reader_tool','dokumen_pengembalian_asset','dokumen_surat_pernyataan','catatan','doc_control_no','created_doc','effective_doc','revision_no','revision_date','author_doc',
+            // SP-style metadata
+            'jenis_dokumen','sp_hal','pemilik_proses','proses_bisnis'
         ]);
         // Type-specific fields
         $data += $request->only([

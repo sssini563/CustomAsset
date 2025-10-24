@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Actionlog;
+use App\Models\DocumentSignature;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -89,6 +90,42 @@ class UserObserver
         }
 
 
+    }
+
+    /**
+     * Listen to the User updated event to sync document signatures
+     *
+     * @param  User $user
+     * @return void
+     */
+    public function updated(User $user)
+    {
+        // Sync signatures when manager changes
+        if ($user->wasChanged('manager_id')) {
+            $newManagerId = $user->manager_id;
+
+            // Update user_manager signatures for documents where this user is the 'user' (penerima)
+            $userSignatures = DocumentSignature::where('role', 'user')
+                ->where('user_id', $user->id)
+                ->get();
+
+            foreach ($userSignatures as $userSig) {
+                DocumentSignature::where('document_id', $userSig->document_id)
+                    ->where('role', 'user_manager')
+                    ->update(['user_id' => $newManagerId]);
+            }
+
+            // Update creator_manager signatures for documents where this user is the 'creator'
+            $creatorSignatures = DocumentSignature::where('role', 'creator')
+                ->where('user_id', $user->id)
+                ->get();
+
+            foreach ($creatorSignatures as $creatorSig) {
+                DocumentSignature::where('document_id', $creatorSig->document_id)
+                    ->where('role', 'creator_manager')
+                    ->update(['user_id' => $newManagerId]);
+            }
+        }
     }
 
     /**

@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\{Asset, Actionlog, Document, DocumentSignature, User, Component, Accessory, Consumable, License, LicenseSeat, Location};
+use App\Models\Setting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -58,24 +59,10 @@ class DocumentCreator
             if (!$itManagerName) {
                 $itManagerName = $creator->present()?->fullName;
             }
-
-            // Try to read some common custom fields on asset for processor/memory/harddisk/windows/office
-            $getCustom = function(string $key) use ($asset) {
-                // Snipe-IT stores custom fields as native columns after migration; try both attributes and presenter
-                if (isset($asset->{$key}) && $asset->{$key} !== null && $asset->{$key} !== '') { return (string) $asset->{$key}; }
-                try { return (string) optional($asset->present())->{$key}; } catch (\Throwable $e) { /* noop */ }
-                return null;
-            };
             $manufacturer = optional(optional($asset->model)->manufacturer)->name;
             $categoryName = optional(optional($asset->model)->category)->name;
-            // Asset Number: prefer custom field 'asset_number' (and common aliases), fallback to asset_tag
-            $assetNumberSnapshot = $getCustom('asset_number')
-                ?: $getCustom('asset number')
-                ?: $getCustom('asset_no')
-                ?: $getCustom('asset no')
-                ?: $getCustom('no_asset')
-                ?: (isset($asset->asset_number) ? (string)$asset->asset_number : null)
-                ?: $asset->asset_tag;
+            // Asset Number snapshot: use asset_tag (stable, visible in UI)
+            $assetNumberSnapshot = $asset->asset_tag;
             Log::info('[DocumentCreator] Building document payload', [
                 'asset_id' => $asset->id,
                 'asset_number_snapshot' => $assetNumberSnapshot,
@@ -84,10 +71,12 @@ class DocumentCreator
                 'it_manager_user_id' => $itManagerUserId,
                 'it_manager_name' => $itManagerName,
             ]);
-                // Generate No Tanda Terima and derive 3-digit document_no
-                $generated = DocumentNumberGenerator::generateForAsset($asset);
-                $generatedSuffix = preg_match('/(\d{3})$/', $generated, $m) ? $m[1] : null;
-                $document = Document::create([
+            // No longer storing per-document metadata; rely on settings at render time
+            $sp = Setting::getSettings();
+            // Generate No Tanda Terima and derive 3-digit document_no
+            $generated = DocumentNumberGenerator::generateForAsset($asset);
+            $generatedSuffix = preg_match('/(\d{3})$/', $generated, $m) ? $m[1] : null;
+            $document = Document::create([
                     'type' => 'asset',
                     'asset_id' => $asset->id,
                     'asset_log_id' => $actionLog->id,
@@ -116,15 +105,6 @@ class DocumentCreator
                     // Hardware
                     'device_name' => $asset->asset_tag, // per requirement: device name from asset tag
                     'serial_number_device' => $asset->serial,
-                    'merk' => optional(optional($asset->model)->manufacturer)->name,
-                    'processor' => $asset->processor ?? null,
-                    'memory' => $asset->memory ?? null,
-                    'hardisk' => $asset->harddisk ?? ($asset->hardisk ?? null),
-                    'serial_number' => $asset->serial,
-                    'battery' => null,
-                    'serial_number_battery' => null,
-                    'tas' => null,
-                    'adaptor' => null,
                     'serial_number_adaptor' => null,
                     'foto_device' => null,
                     // Software
@@ -145,7 +125,7 @@ class DocumentCreator
                     // Status
                     'overall_status' => 'pending',
                     'created_by' => $creator->id,
-                ]);
+            ]);
 
             // Build signatures (snapshot user names now for audit)
             // Additional manager signatures (creator_manager & user_manager) start empty; they will be auto-synced on edit.

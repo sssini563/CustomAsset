@@ -94,6 +94,9 @@ Route::group(['middleware' => 'auth'], function () {
 
 // Document module routes (initial asset focus)
 Route::group(['middleware' => 'auth', 'prefix' => 'documents'], function () {
+    // Metadata defaults editor under Documents tree
+    Route::get('meta-defaults', [\App\Http\Controllers\Documents\DocumentMetaDefaultsController::class, 'edit'])->name('documents.meta.defaults.edit');
+    Route::post('meta-defaults', [\App\Http\Controllers\Documents\DocumentMetaDefaultsController::class, 'update'])->name('documents.meta.defaults.update');
     Route::get('{type}', [\App\Http\Controllers\Documents\DocumentController::class,'index'])->name('documents.index');
     Route::get('{document}/print', [\App\Http\Controllers\Documents\DocumentController::class,'print'])->name('documents.print');
     // Serve locked PDF when document is complete
@@ -220,6 +223,16 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'authorize:superuser
 
     Route::post('notifications', [SettingsController::class, 'postAlerts'])
         ->name('settings.alerts.save');
+
+    // Document Metadata Defaults (SP-style)
+    Route::get('document-meta-defaults', [SettingsController::class, 'getDocumentMetaDefaults'])
+        ->name('settings.document_meta_defaults.index')
+        ->breadcrumbs(fn (Trail $trail) =>
+        $trail->parent('settings.index')
+            ->push('Document Metadata', route('settings.document_meta_defaults.index')));
+
+    Route::post('document-meta-defaults', [SettingsController::class, 'postDocumentMetaDefaults'])
+        ->name('settings.document_meta_defaults.save');
 
     Route::get('slack', [SettingsController::class, 'getSlack'])
         ->name('settings.slack.index')

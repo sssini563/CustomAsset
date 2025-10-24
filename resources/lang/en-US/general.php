@@ -652,6 +652,7 @@ return [
         'yellow' => 'Yellow',
         'yellow_dark' => 'Yellow (Dark Mode)',
         'high_contrast' => 'High Contrast',
+        'brand' => 'Brand (Custom Theme)',
 
     ],
 

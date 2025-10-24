@@ -1,0 +1,39 @@
+{
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.23/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.23",
+    "version": "1.0.0",
+    "id": "${{TEAMS_APP_ID}}",
+    "developer": {
+        "name": "Snipe-IT, LLC",
+        "websiteUrl": "https://www.example.com",
+        "privacyUrl": "https://www.example.com/privacy",
+        "termsOfUseUrl": "https://www.example.com/termofuse"
+    },
+    "icons": {
+        "color": "color.png",
+        "outline": "outline.png"
+    },
+    "name": {
+        "short": "snipeit${{APP_NAME_SUFFIX}}",
+        "full": "Snipe-IT Asset Management System"
+    },
+    "description": {
+        "short": "Asset management and IT inventory tracking for organizations.",
+        "full": "Snipe-IT is an open-source asset management system designed to help organizations track hardware, software, licenses, accessories, and consumables. It provides features for managing asset assignments, auditing, reporting, and lifecycle management, making it easy for IT teams to maintain accurate records and streamline asset workflows."
+    },
+    "accentColor": "#FFFFFF",
+    "composeExtensions": [],
+    "permissions": [
+        "identity",
+        "messageTeamMembers"
+    ],
+    "copilotAgents": {
+        "declarativeAgents": [            
+            {
+                "id": "declarativeAgent",
+                "file": "declarativeAgent.json"
+            }
+        ]
+    },
+    "validDomains": []
+}

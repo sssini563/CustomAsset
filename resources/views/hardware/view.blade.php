@@ -232,10 +232,13 @@
                                         @can('update', $asset)
                                             <div class="col-md-12 hidden-print" style="padding-top: 5px;">
                                                 <a href="{{ route('hardware.edit', $asset) }}"
-                                                    style="width: 100%; background-color: #3c8dbc !important; border-color: #367fa9 !important; color: #fff !important; padding: 8px 12px !important; display: flex !important; align-items: center !important; gap: 8px !important;"
+                                                    style="width: 100%; background-color: #3c8dbc !important; border-color: #367fa9 !important; color: #fff !important; padding: 10px 15px !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; position: relative !important;"
                                                     class="btn btn-sm btn-warning btn-social btn-block hidden-print">
-                                                    <x-icon type="edit" />
-                                                    <span>{{ trans('admin/hardware/general.edit') }}</span>
+                                                    <span
+                                                        style="display: inline-flex !important; align-items: center !important; position: static !important; margin-right: 8px !important;"><x-icon
+                                                            type="edit" /></span>
+                                                    <span
+                                                        style="position: static !important; display: inline !important;">{{ trans('admin/hardware/general.edit') }}</span>
                                                 </a>
                                             </div>
                                         @endcan
@@ -250,10 +253,13 @@
                                                             : '' !!}>
                                                             <a role="button"
                                                                 href="{{ route('hardware.checkin.create', $asset->id) }}"
-                                                                style="width: 100%; background-color: #00a65a !important; border-color: #008d4c !important; color: #fff !important; padding: 8px 12px !important; display: flex !important; align-items: center !important; gap: 8px !important;"
+                                                                style="width: 100%; background-color: #00a65a !important; border-color: #008d4c !important; color: #fff !important; padding: 10px 15px !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; position: relative !important;"
                                                                 class="btn btn-sm btn-primary btn-social btn-block hidden-print{{ !$asset->model ? ' disabled' : '' }}">
-                                                                <x-icon type="checkin" />
-                                                                <span>{{ trans('admin/hardware/general.checkin') }}</span>
+                                                                <span
+                                                                    style="display: inline-flex !important; align-items: center !important; position: static !important; margin-right: 8px !important;"><x-icon
+                                                                        type="checkin" /></span>
+                                                                <span
+                                                                    style="position: static !important; display: inline !important;">{{ trans('admin/hardware/general.checkin') }}</span>
                                                             </a>
                                                         </span>
                                                     </div>
@@ -265,10 +271,13 @@
                                                             ? ' data-tooltip="true" title="' . trans('admin/hardware/general.model_invalid_fix') . '"'
                                                             : '' !!}>
                                                             <a href="{{ route('hardware.checkout.create', $asset->id) }}"
-                                                                style="width: 100%; background-color: #f39c12 !important; border-color: #e08e0b !important; color: #fff !important; padding: 8px 12px !important; display: flex !important; align-items: center !important; gap: 8px !important;"
+                                                                style="width: 100%; background-color: #f39c12 !important; border-color: #e08e0b !important; color: #fff !important; padding: 10px 15px !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; position: relative !important;"
                                                                 class="btn btn-sm btn-success btn-social btn-block hidden-print{{ !$asset->model ? ' disabled' : '' }}">
-                                                                <x-icon type="checkout" />
-                                                                <span>{{ trans('admin/hardware/general.checkout') }}</span>
+                                                                <span
+                                                                    style="display: inline-flex !important; align-items: center !important; position: static !important; margin-right: 8px !important;"><x-icon
+                                                                        type="checkout" /></span>
+                                                                <span
+                                                                    style="position: static !important; display: inline !important;">{{ trans('admin/hardware/general.checkout') }}</span>
                                                             </a>
                                                         </span>
                                                     </div>
@@ -280,11 +289,14 @@
                                         @can('update', \App\Models\Asset::class)
                                             <div class="col-md-12 hidden-print" style="padding-top: 5px;">
                                                 <a href="#"
-                                                    style="width: 100%; background-color: #605ca8 !important; border-color: #555299 !important; color: #fff !important; padding: 8px 12px !important; display: flex !important; align-items: center !important; gap: 8px !important;"
+                                                    style="width: 100%; background-color: #605ca8 !important; border-color: #555299 !important; color: #fff !important; padding: 10px 15px !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; position: relative !important;"
                                                     data-toggle="modal" data-target="#createNoteModal"
                                                     class="btn btn-sm btn-default btn-block btn-social hidden-print">
-                                                    <x-icon type="note" />
-                                                    <span>{{ trans('general.add_note') }}</span>
+                                                    <span
+                                                        style="display: inline-flex !important; align-items: center !important; position: static !important; margin-right: 8px !important;"><x-icon
+                                                            type="note" /></span>
+                                                    <span
+                                                        style="position: static !important; display: inline !important;">{{ trans('general.add_note') }}</span>
                                                 </a>
                                                 @include ('modals.add-note', [
                                                     'type' => 'asset',
@@ -302,10 +314,13 @@
                                                     ? ' data-tooltip="true" title="' . trans('admin/hardware/general.model_invalid_fix') . '"'
                                                     : '' !!}>
                                                     <a href="{{ route('asset.audit.create', $asset->id) }}"
-                                                        style="width: 100%; background-color: #00c0ef !important; border-color: #00acd6 !important; color: #fff !important; padding: 8px 12px !important; display: flex !important; align-items: center !important; gap: 8px !important;"
+                                                        style="width: 100%; background-color: #00c0ef !important; border-color: #00acd6 !important; color: #fff !important; padding: 10px 15px !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; position: relative !important;"
                                                         class="btn btn-sm btn-info btn-block btn-social hidden-print{{ !$asset->model ? ' disabled' : '' }}">
-                                                        <x-icon type="audit" />
-                                                        <span>{{ trans('general.audit') }}</span>
+                                                        <span
+                                                            style="display: inline-flex !important; align-items: center !important; position: static !important; margin-right: 8px !important;"><x-icon
+                                                                type="audit" /></span>
+                                                        <span
+                                                            style="position: static !important; display: inline !important;">{{ trans('general.audit') }}</span>
                                                     </a>
                                                 </span>
                                             </div>
@@ -315,10 +330,13 @@
                                     @can('create', $asset)
                                         <div class="col-md-12 hidden-print" style="padding-top: 5px;">
                                             <a href="{{ route('clone/hardware', $asset->id) }}"
-                                                style="width: 100%; background-color: #39cccc !important; border-color: #30bbbb !important; color: #fff !important; padding: 8px 12px !important; display: flex !important; align-items: center !important; gap: 8px !important;"
+                                                style="width: 100%; background-color: #39cccc !important; border-color: #30bbbb !important; color: #fff !important; padding: 10px 15px !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; position: relative !important;"
                                                 class="btn btn-sm btn-default btn-block btn-social hidden-print">
-                                                <x-icon type="clone" />
-                                                <span>{{ trans('admin/hardware/general.clone') }}</span>
+                                                <span
+                                                    style="display: inline-flex !important; align-items: center !important; position: static !important; margin-right: 8px !important;"><x-icon
+                                                        type="clone" /></span>
+                                                <span
+                                                    style="position: static !important; display: inline !important;">{{ trans('admin/hardware/general.clone') }}</span>
                                             </a>
                                         </div>
                                     @endcan
@@ -331,11 +349,14 @@
                                             <input type="hidden" name="ids[{{ $asset->id }}]"
                                                 value="{{ $asset->id }}" />
                                             <button
-                                                style="width: 100%; background-color: #b8c7ce !important; border-color: #a7b7c1 !important; color: #444 !important; padding: 8px 12px !important; display: flex !important; align-items: center !important; gap: 8px !important;"
+                                                style="width: 100%; background-color: #b8c7ce !important; border-color: #a7b7c1 !important; color: #444 !important; padding: 10px 15px !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; position: relative !important;"
                                                 class="btn btn-block btn-social btn-sm btn-default"
                                                 id="bulkEdit"{{ !$asset->model ? ' disabled' : '' }}{!! !$asset->model ? ' data-tooltip="true" title="' . trans('admin/hardware/general.model_invalid') . '"' : '' !!}>
-                                                <x-icon type="assets" />
-                                                <span>{{ trans_choice('button.generate_labels', 1) }}</span>
+                                                <span
+                                                    style="display: inline-flex !important; align-items: center !important; position: static !important; margin-right: 8px !important;"><x-icon
+                                                        type="assets" /></span>
+                                                <span
+                                                    style="position: static !important; display: inline !important;">{{ trans_choice('button.generate_labels', 1) }}</span>
                                             </button>
                                         </form>
                                     </div>
@@ -345,14 +366,16 @@
 
                                             @if ($asset->deleted_at == '')
                                                 <button
-                                                    style="width: 100%; background-color: #dd4b39 !important; border-color: #d73925 !important; color: #fff !important; padding: 8px 12px !important; display: flex !important; align-items: center !important; gap: 8px !important;"
+                                                    style="width: 100%; background-color: #dd4b39 !important; border-color: #d73925 !important; color: #fff !important; padding: 10px 15px !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; position: relative !important;"
                                                     class="btn btn-sm btn-block btn-danger btn-social delete-asset"
                                                     data-toggle="modal" data-title="{{ trans('general.delete') }}"
                                                     data-content="{{ trans('general.sure_to_delete_var', ['item' => $asset->asset_tag]) }}"
                                                     data-target="#dataConfirmModal">
 
-                                                    <x-icon type="delete" />
-                                                    <span>
+                                                    <span
+                                                        style="display: inline-flex !important; align-items: center !important; position: static !important; margin-right: 8px !important;"><x-icon
+                                                            type="delete" /></span>
+                                                    <span style="position: static !important; display: inline !important;">
                                                         @if ($asset->assignedTo)
                                                             {{ trans('general.checkin_and_delete') }}
                                                         @else

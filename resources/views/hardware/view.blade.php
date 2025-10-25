@@ -280,7 +280,7 @@
                                         @can('update', \App\Models\Asset::class)
                                             <div class="col-md-12 hidden-print" style="padding-top: 5px;">
                                                 <a href="#"
-                                                    style="width: 100%; background-color: #fff !important; border-color: #ccc !important; color: #333 !important;"
+                                                    style="width: 100%; background-color: #9b59b6 !important; border-color: #8e44ad !important; color: #fff !important;"
                                                     data-toggle="modal" data-target="#createNoteModal"
                                                     class="btn btn-sm btn-default btn-block btn-social hidden-print">
                                                     <x-icon type="note" />
@@ -315,7 +315,7 @@
                                     @can('create', $asset)
                                         <div class="col-md-12 hidden-print" style="padding-top: 5px;">
                                             <a href="{{ route('clone/hardware', $asset->id) }}"
-                                                style="width: 100%; background-color: #fff !important; border-color: #ccc !important; color: #333 !important;"
+                                                style="width: 100%; background-color: #17a2b8 !important; border-color: #138496 !important; color: #fff !important;"
                                                 class="btn btn-sm btn-default btn-block btn-social hidden-print">
                                                 <x-icon type="clone" />
                                                 {{ trans('admin/hardware/general.clone') }}
@@ -331,7 +331,7 @@
                                             <input type="hidden" name="ids[{{ $asset->id }}]"
                                                 value="{{ $asset->id }}" />
                                             <button
-                                                style="width: 100%; background-color: #fff !important; border-color: #ccc !important; color: #333 !important;"
+                                                style="width: 100%; background-color: #6c757d !important; border-color: #5a6268 !important; color: #fff !important;"
                                                 class="btn btn-block btn-social btn-sm btn-default"
                                                 id="bulkEdit"{{ !$asset->model ? ' disabled' : '' }}{!! !$asset->model ? ' data-tooltip="true" title="' . trans('admin/hardware/general.model_invalid') . '"' : '' !!}>
                                                 <x-icon type="assets" />

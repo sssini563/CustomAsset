@@ -231,7 +231,8 @@
                                     @if ($asset->deleted_at == '')
                                         @can('update', $asset)
                                             <div class="col-md-12 hidden-print" style="padding-top: 5px;">
-                                                <a href="{{ route('hardware.edit', $asset) }}" style="width: 100%;"
+                                                <a href="{{ route('hardware.edit', $asset) }}"
+                                                    style="width: 100%; background-color: #f0ad4e !important; border-color: #eea236 !important; color: #fff !important;"
                                                     class="btn btn-sm btn-warning btn-social btn-block hidden-print">
                                                     <x-icon type="edit" />
                                                     {{ trans('admin/hardware/general.edit') }}
@@ -249,7 +250,7 @@
                                                             : '' !!}>
                                                             <a role="button"
                                                                 href="{{ route('hardware.checkin.create', $asset->id) }}"
-                                                                style="width: 100%;"
+                                                                style="width: 100%; background-color: #337ab7 !important; border-color: #2e6da4 !important; color: #fff !important;"
                                                                 class="btn btn-sm btn-primary btn-social btn-block hidden-print{{ !$asset->model ? ' disabled' : '' }}">
                                                                 <x-icon type="checkin" />
                                                                 {{ trans('admin/hardware/general.checkin') }}
@@ -264,7 +265,7 @@
                                                             ? ' data-tooltip="true" title="' . trans('admin/hardware/general.model_invalid_fix') . '"'
                                                             : '' !!}>
                                                             <a href="{{ route('hardware.checkout.create', $asset->id) }}"
-                                                                style="width: 100%;"
+                                                                style="width: 100%; background-color: #5cb85c !important; border-color: #4cae4c !important; color: #fff !important;"
                                                                 class="btn btn-sm btn-success btn-social btn-block hidden-print{{ !$asset->model ? ' disabled' : '' }}">
                                                                 <x-icon type="checkout" />
                                                                 {{ trans('admin/hardware/general.checkout') }}
@@ -278,8 +279,9 @@
                                         <!-- Add notes -->
                                         @can('update', \App\Models\Asset::class)
                                             <div class="col-md-12 hidden-print" style="padding-top: 5px;">
-                                                <a href="#" style="width: 100%" data-toggle="modal"
-                                                    data-target="#createNoteModal"
+                                                <a href="#"
+                                                    style="width: 100%; background-color: #fff !important; border-color: #ccc !important; color: #333 !important;"
+                                                    data-toggle="modal" data-target="#createNoteModal"
                                                     class="btn btn-sm btn-default btn-block btn-social hidden-print">
                                                     <x-icon type="note" />
                                                     {{ trans('general.add_note') }}
@@ -300,7 +302,7 @@
                                                     ? ' data-tooltip="true" title="' . trans('admin/hardware/general.model_invalid_fix') . '"'
                                                     : '' !!}>
                                                     <a href="{{ route('asset.audit.create', $asset->id) }}"
-                                                        style="width: 100%;"
+                                                        style="width: 100%; background-color: #5bc0de !important; border-color: #46b8da !important; color: #fff !important;"
                                                         class="btn btn-sm btn-info btn-block btn-social hidden-print{{ !$asset->model ? ' disabled' : '' }}">
                                                         <x-icon type="audit" />
                                                         {{ trans('general.audit') }}
@@ -312,7 +314,8 @@
 
                                     @can('create', $asset)
                                         <div class="col-md-12 hidden-print" style="padding-top: 5px;">
-                                            <a href="{{ route('clone/hardware', $asset->id) }}" style="width: 100%;"
+                                            <a href="{{ route('clone/hardware', $asset->id) }}"
+                                                style="width: 100%; background-color: #fff !important; border-color: #ccc !important; color: #333 !important;"
                                                 class="btn btn-sm btn-default btn-block btn-social hidden-print">
                                                 <x-icon type="clone" />
                                                 {{ trans('admin/hardware/general.clone') }}
@@ -327,7 +330,9 @@
                                             <input type="hidden" name="bulk_actions" value="labels" />
                                             <input type="hidden" name="ids[{{ $asset->id }}]"
                                                 value="{{ $asset->id }}" />
-                                            <button class="btn btn-block btn-social btn-sm btn-default"
+                                            <button
+                                                style="width: 100%; background-color: #fff !important; border-color: #ccc !important; color: #333 !important;"
+                                                class="btn btn-block btn-social btn-sm btn-default"
                                                 id="bulkEdit"{{ !$asset->model ? ' disabled' : '' }}{!! !$asset->model ? ' data-tooltip="true" title="' . trans('admin/hardware/general.model_invalid') . '"' : '' !!}>
                                                 <x-icon type="assets" />
                                                 {{ trans_choice('button.generate_labels', 1) }}</button>
@@ -338,7 +343,8 @@
                                         <div class="col-md-12 hidden-print" style="padding-top: 30px; padding-bottom: 30px;">
 
                                             @if ($asset->deleted_at == '')
-                                                <button style="width: 100%;"
+                                                <button
+                                                    style="width: 100%; background-color: #d9534f !important; border-color: #d43f3a !important; color: #fff !important;"
                                                     class="btn btn-sm btn-block btn-danger btn-social delete-asset"
                                                     data-toggle="modal" data-title="{{ trans('general.delete') }}"
                                                     data-content="{{ trans('general.sure_to_delete_var', ['item' => $asset->asset_tag]) }}"

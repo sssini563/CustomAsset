@@ -32,12 +32,6 @@
             {!! $snipeSettings->show_custom_css() !!}
         </style>
     @endif
-</head>
-
-@php $bg = ($snipeSettings && $snipeSettings->login_background) ? Storage::disk('public')->url(e($snipeSettings->login_background)) : null; @endphp
-
-<body class="hold-transition login-page"
-    style="min-height:100vh; margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; {{ $bg ? 'background:url(' . $bg . ') center/cover no-repeat fixed;' : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);' }}">
 
     <style>
         .login-page {
@@ -54,31 +48,40 @@
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(25px);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(60, 141, 188, 0.75) 0%, rgba(44, 110, 159, 0.75) 100%);
             padding: 40px 30px;
             text-align: center;
             color: white;
+            backdrop-filter: blur(10px);
         }
 
         .login-logo {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             margin: 0 auto 15px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
             backdrop-filter: blur(10px);
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        .login-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .login-header h1 {
@@ -96,6 +99,8 @@
 
         .login-body {
             padding: 35px 30px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
         }
 
         .login-field {
@@ -105,8 +110,8 @@
         .login-field label {
             display: block;
             margin-bottom: 8px;
-            color: #374151;
-            font-weight: 500;
+            color: #1f2937;
+            font-weight: 600;
             font-size: 14px;
         }
 
@@ -118,18 +123,19 @@
             width: 100%;
             height: 48px;
             padding: 12px 16px;
-            border: 2px solid #e5e7eb;
+            border: 2px solid rgba(229, 231, 235, 0.5);
             border-radius: 12px;
             font-size: 15px;
             transition: all 0.3s ease;
-            background: #f9fafb;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(5px);
         }
 
         .login-input:focus {
             outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            border-color: #3c8dbc;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 0 4px rgba(60, 141, 188, 0.15);
         }
 
         .icon-right {
@@ -142,7 +148,7 @@
         }
 
         .icon-right:hover {
-            color: #667eea;
+            color: #3c8dbc;
         }
 
         .switch {
@@ -158,26 +164,27 @@
             width: 18px;
             height: 18px;
             cursor: pointer;
-            accent-color: #667eea;
+            accent-color: #3c8dbc;
         }
 
         .btn-primary {
             width: 100%;
             height: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
+            background: linear-gradient(135deg, #3c8dbc 0%, #2c6e9f 100%) !important;
+            border: none !important;
             border-radius: 12px;
-            color: white;
+            color: white !important;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(60, 141, 188, 0.4);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 6px 20px rgba(60, 141, 188, 0.5);
+            background: linear-gradient(135deg, #337ca8 0%, #255a82 100%) !important;
         }
 
         .btn-primary:active {
@@ -187,40 +194,59 @@
         .btn-google {
             width: 100%;
             height: 48px;
-            background: white;
-            border: 2px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.7) !important;
+            border: 2px solid rgba(229, 231, 235, 0.5) !important;
             border-radius: 12px;
-            color: #374151;
+            color: #374151 !important;
             font-size: 15px;
             font-weight: 500;
-            display: flex;
+            display: flex !important;
             align-items: center;
             justify-content: center;
             gap: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-decoration: none;
+            text-decoration: none !important;
+            backdrop-filter: blur(5px);
         }
 
         .btn-google:hover {
-            background: #f9fafb;
-            border-color: #667eea;
-            color: #667eea;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-color: #3c8dbc !important;
+            color: #3c8dbc !important;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(60, 141, 188, 0.3);
         }
 
         .alert {
             padding: 12px 16px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-top: 15px;
             font-size: 14px;
         }
 
         .alert-info {
-            background: #dbeafe;
-            border: 1px solid #93c5fd;
-            color: #1e40af;
+            background: #dbeafe !important;
+            border: 1px solid #93c5fd !important;
+            color: #1e40af !important;
+        }
+
+        .alert-success {
+            background: #d1fae5 !important;
+            border: 1px solid #6ee7b7 !important;
+            color: #047857 !important;
+        }
+
+        .alert-danger {
+            background: #fee2e2 !important;
+            border: 1px solid #fca5a5 !important;
+            color: #dc2626 !important;
+        }
+
+        .alert-warning {
+            background: #fef3c7 !important;
+            border: 1px solid #fcd34d !important;
+            color: #d97706 !important;
         }
 
         .alert-msg {
@@ -231,8 +257,8 @@
         }
 
         .has-error .login-input {
-            border-color: #ef4444;
-            background: #fef2f2;
+            border-color: #ef4444 !important;
+            background: #fef2f2 !important;
         }
 
         @keyframes fadeInUp {
@@ -261,6 +287,12 @@
             }
         }
     </style>
+</head>
+
+@php $bg = ($snipeSettings && $snipeSettings->login_background) ? Storage::disk('public')->url(e($snipeSettings->login_background)) : null; @endphp
+
+<body class="hold-transition login-page"
+    style="min-height:100vh; margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; {{ $bg ? 'background:url(' . $bg . ') center/cover no-repeat fixed;' : 'background: linear-gradient(135deg, #3c8dbc 0%, #2c6e9f 100%);' }}">
 
     <div class="login-container">
         @yield('content')

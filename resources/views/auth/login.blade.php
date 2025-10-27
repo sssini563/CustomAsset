@@ -7,7 +7,12 @@
         <!-- Login Header -->
         <div class="login-header">
             <div class="login-logo">
-                <i class="fas fa-shield-alt"></i>
+                @if ($snipeSettings && $snipeSettings->logo != '')
+                    <img src="{{ Storage::disk('public')->url(e($snipeSettings->logo)) }}"
+                        alt="{{ $snipeSettings->site_name ?? 'Logo' }}">
+                @else
+                    <i class="fas fa-shield-alt" style="font-size: 50px; color: white;"></i>
+                @endif
             </div>
             <h1>{{ $snipeSettings->site_name ?? 'Snipe-IT' }}</h1>
             <p>{{ trans('auth/general.login_prompt') ?? 'Sign in to your account' }}</p>
@@ -41,16 +46,6 @@
                         <div style="height:1px;background:#e5e7eb;flex:1"></div>
                     </div>
                 @endif
-
-                <!-- Login Note -->
-                @if ($snipeSettings->login_note)
-                    <div class="alert alert-info">
-                        {!! Helper::parseEscapedMarkedown($snipeSettings->login_note) !!}
-                    </div>
-                @endif
-
-                <!-- Notifications -->
-                @include('notifications')
 
                 @if (!config('app.require_saml'))
                     <fieldset name="login" aria-label="login">
@@ -128,6 +123,22 @@
                         <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
                         {{ trans('auth/general.login') }}
                     </button>
+                @endif
+
+                <!-- Login Note -->
+                @if ($snipeSettings->login_note)
+                    <div class="alert alert-info">
+                        {!! Helper::parseEscapedMarkedown($snipeSettings->login_note) !!}
+                    </div>
+                @endif
+
+                <!-- Error Notifications Only (no success messages) -->
+                @if (session('error') || $errors->count() > 0)
+                    @if (session('error'))
+                        <div class="alert alert-danger" style="margin-top: 15px;">
+                            <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+                        </div>
+                    @endif
                 @endif
             </form>
         </div>

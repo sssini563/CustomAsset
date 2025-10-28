@@ -63,21 +63,6 @@
                 <div class="admin box box-default">
                     <div class="box-body text-center">
                         <h5>
-                            <a href="{{ route('settings.document_meta_defaults.index') }}" class="settings_button">
-                                <i class="fa fa-file-text-o fa-4x" aria-hidden="true"></i>
-                                <br><br>
-                                <span class="name">Document Metadata</span>
-                            </a>
-                        </h5>
-                        <p class="index-block">Set default SP-style metadata (Document Type, Page, Process Owner, Business Process) for new documents.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4 col-lg-3 col-sm-6 col-xl-1">
-                <div class="admin box box-default">
-                    <div class="box-body text-center">
-                        <h5>
                             <a href="{{ route('settings.branding.index') }}" class="settings_button">
                                 <x-icon type="branding" class="fa-4x" />
                                 <br><br>

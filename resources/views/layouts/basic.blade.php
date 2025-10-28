@@ -48,20 +48,20 @@
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(25px);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .login-header {
-            background: linear-gradient(135deg, rgba(60, 141, 188, 0.75) 0%, rgba(44, 110, 159, 0.75) 100%);
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.5) 0%, rgba(25, 118, 210, 0.5) 100%);
             padding: 40px 30px;
             text-align: center;
             color: white;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
         }
 
         .login-logo {
@@ -99,8 +99,8 @@
 
         .login-body {
             padding: 35px 30px;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
         }
 
         .login-field {
@@ -123,19 +123,24 @@
             width: 100%;
             height: 48px;
             padding: 12px 16px;
-            border: 2px solid rgba(229, 231, 235, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 12px;
             font-size: 15px;
             transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            color: #1f2937;
+        }
+
+        .login-input::placeholder {
+            color: rgba(107, 114, 128, 0.7);
         }
 
         .login-input:focus {
             outline: none;
-            border-color: #3c8dbc;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 0 0 4px rgba(60, 141, 188, 0.15);
+            border-color: rgba(33, 150, 243, 0.8);
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.2);
         }
 
         .icon-right {
@@ -148,7 +153,7 @@
         }
 
         .icon-right:hover {
-            color: #3c8dbc;
+            color: #2196F3;
         }
 
         .switch {
@@ -164,27 +169,29 @@
             width: 18px;
             height: 18px;
             cursor: pointer;
-            accent-color: #3c8dbc;
+            accent-color: #2196F3;
         }
 
         .btn-primary {
             width: 100%;
             height: 50px;
-            background: linear-gradient(135deg, #3c8dbc 0%, #2c6e9f 100%) !important;
-            border: none !important;
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.6) 0%, rgba(25, 118, 210, 0.6) 100%) !important;
+            border: 2px solid rgba(33, 150, 243, 0.4) !important;
             border-radius: 12px;
             color: white !important;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(60, 141, 188, 0.4);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+            backdrop-filter: blur(10px);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(60, 141, 188, 0.5);
-            background: linear-gradient(135deg, #337ca8 0%, #255a82 100%) !important;
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.5);
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.8) 0%, rgba(25, 118, 210, 0.8) 100%) !important;
+            border-color: rgba(33, 150, 243, 0.6) !important;
         }
 
         .btn-primary:active {
@@ -194,10 +201,10 @@
         .btn-google {
             width: 100%;
             height: 48px;
-            background: rgba(255, 255, 255, 0.7) !important;
-            border: 2px solid rgba(229, 231, 235, 0.5) !important;
+            background: rgba(255, 255, 255, 0.5) !important;
+            border: 2px solid rgba(255, 255, 255, 0.4) !important;
             border-radius: 12px;
-            color: #374151 !important;
+            color: #1f2937 !important;
             font-size: 15px;
             font-weight: 500;
             display: flex !important;
@@ -207,15 +214,15 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none !important;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
         }
 
         .btn-google:hover {
             background: rgba(255, 255, 255, 0.9) !important;
-            border-color: #3c8dbc !important;
-            color: #3c8dbc !important;
+            border-color: #2196F3 !important;
+            color: #2196F3 !important;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(60, 141, 188, 0.3);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
         }
 
         .alert {
@@ -292,7 +299,7 @@
 @php $bg = ($snipeSettings && $snipeSettings->login_background) ? Storage::disk('public')->url(e($snipeSettings->login_background)) : null; @endphp
 
 <body class="hold-transition login-page"
-    style="min-height:100vh; margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; {{ $bg ? 'background:url(' . $bg . ') center/cover no-repeat fixed;' : 'background: linear-gradient(135deg, #3c8dbc 0%, #2c6e9f 100%);' }}">
+    style="min-height:100vh; margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; {{ $bg ? 'background:url(' . $bg . ') center/cover no-repeat fixed;' : 'background: linear-gradient(135deg, rgba(33, 150, 243, 0.8) 0%, rgba(25, 118, 210, 0.8) 100%), url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gMTAwIDAgTCAwIDAgMCAxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=);' }}">
 
     <div class="login-container">
         @yield('content')

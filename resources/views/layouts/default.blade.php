@@ -3946,7 +3946,6 @@ dir="{{ Helper::determineLanguageDirection() }}">
                                 <li{!! (request()->is('documents/license') ? ' class="active"' : '') !!}><a href="{{ route('documents.index',['type'=>'license']) }}"><x-icon type="circle" class="text-grey fa-fw"/> License</a></li>
                                 <li{!! (request()->is('documents/accessory') ? ' class="active"' : '') !!}><a href="{{ route('documents.index',['type'=>'accessory']) }}"><x-icon type="circle" class="text-grey fa-fw"/> Accessory</a></li>
                                 <li{!! (request()->is('documents/consumable') ? ' class="active"' : '') !!}><a href="{{ route('documents.index',['type'=>'consumable']) }}"><x-icon type="circle" class="text-grey fa-fw"/> Consumable</a></li>
-                                <li{!! (request()->is('documents/meta-defaults') ? ' class="active"' : '') !!}><a href="{{ route('documents.meta.defaults.edit') }}"><x-icon type="circle" class="text-grey fa-fw"/> Metadata Defaults</a></li>
                             </ul>
                         </li>
                         @can('view', \App\Models\PredefinedKit::class)

@@ -43,22 +43,27 @@ RUN mkdir -p /var/www/html/storage/framework/cache/data \
     && mkdir -p /var/www/html/bootstrap/cache \
     && mkdir -p /var/www/html/public/uploads
 
-# Create temporary .env file for build process
-RUN cp .env.example .env || echo "APP_KEY=" > .env
-
-# Set permissions
+# Set permissions first
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/public/uploads
 
-# Install PHP dependencies as www-data user
-USER www-data
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
+# Create minimal .env with cache path config
+RUN echo "APP_ENV=production" > .env \
+    && echo "APP_KEY=" >> .env \
+    && echo "APP_DEBUG=false" >> .env \
+    && echo "VIEW_COMPILED_PATH=/var/www/html/storage/framework/views" >> .env \
+    && chown www-data:www-data .env
 
-# Run post-install scripts separately with proper error handling
-RUN php artisan package:discover --ansi || true
+# Install PHP dependencies as www-data user (skip scripts to avoid cache path errors)
+USER www-data
+RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts
+
+# Clear any cached config and generate fresh cache
+RUN php artisan config:clear || true
+RUN php artisan cache:clear || true
 
 # Switch back to root
 USER root

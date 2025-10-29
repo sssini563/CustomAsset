@@ -16,8 +16,9 @@ services:
     ports:
       - "8008:80"
     env_file:
-      - .env
+      - .env.dc
     environment:
+      APP_KEY: base64:3ilviXqB9u6DX1NRcyWGJ+sjySF+H18CPDGb3+IVwMQ=
       DB_CONNECTION: mysql
       DB_HOST: 10.10.10.100
       DB_PORT: 3306

@@ -22,8 +22,8 @@ services:
       context: .
       dockerfile: Dockerfile.overlay
       args:
-        # Pin to Snipe-IT version matching your codebase
-        SNIPE_IT_TAG: 8.3.3
+        # Pin to Snipe-IT version matching your codebase. Try v8.3.3; if not found, use latest.
+        SNIPE_IT_TAG: v8.3.3
     image: custom-snipe-it:8.3.3-overlay
     container_name: snipeit-app
     restart: unless-stopped

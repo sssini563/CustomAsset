@@ -1,7 +1,7 @@
 # Build a derived image from the official Snipe-IT image and bake in our customizations
 # This avoids bind mounts and vendor mismatches while keeping the upstream runtime/entrypoint.
 
-ARG SNIPE_IT_TAG=8.3.3
+ARG SNIPE_IT_TAG=latest
 FROM snipe/snipe-it:${SNIPE_IT_TAG}
 
 # PHP memory/upload overrides (support both Debian and official PHP layout)

@@ -21,16 +21,13 @@
             margin: 0;
             padding: 0;
             background: #fff;
-            min-width: 210mm;
-            max-width: 210mm;
-            width: 210mm;
         }
 
         body {
-            font-family: 'Segoe UI', 'Arial', sans-serif;
-            font-size: 7pt;
-            color: #212529;
-
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 8pt;
+            color: #000;
+            line-height: 1.4;
         }
 
         /* Ensure background colors are preserved in print & PDF */
@@ -40,21 +37,19 @@
             color-adjust: exact;
         }
 
-
-
         img {
             max-width: 100%;
             height: auto;
         }
 
         /* Page + container */
-        /* Default page size; overridden in @media print above for printed output */
         @page {
-            size: A4;
-            margin: 10mm 10mm 5mm 10mm;
+            size: A4 portrait;
+            margin: 12mm 15mm 10mm 15mm;
         }
 
         .container {
+            width: 100%;
             max-width: 180mm;
             margin: 0 auto;
             padding: 0;
@@ -109,46 +104,52 @@
             font-weight: 600;
         }
 
-        /* Doc info table (right side) */
+        /* Doc info table (right side) - Keep borders for metadata */
         .doc-info-table {
             width: 100%;
             border-collapse: collapse;
-            border: 0.6pt solid #CFCFCF;
-            font-size: 7pt;
+            font-size: 7.5pt;
+            border: 0.5pt solid #999;
         }
 
         .doc-info-table td {
-            border: 0.6pt solid #CFCFCF;
-            padding: 3pt 4pt;
+            border: 0.5pt solid #ccc;
+            padding: 3pt 5pt;
             overflow-wrap: anywhere;
             word-break: break-word;
             white-space: normal;
         }
 
         .doc-info-table td:first-child {
-            background: #F8F9FA !important;
             font-weight: 600;
-            position: relative;
             white-space: nowrap;
             width: 70pt;
+            background: #f5f5f5;
+        }
+
+        .doc-info-table td:nth-child(2) {
+            border-bottom: 0.3pt solid #e5e5e5;
+        }
+
+        .doc-info-table td:nth-child(2)::before {
+            content: ': ';
         }
 
         .colon {
             display: none !important;
         }
 
-        /* Main data tables (grid like sample) */
+        /* Main data tables - No borders, add colon */
         .main-table {
             width: 100%;
             border-collapse: collapse;
-            border: 0.6pt solid #CFCFCF;
-            margin-bottom: 5pt;
-            font-size: 7pt;
+            margin-bottom: 6pt;
+            font-size: 7.5pt;
             background: #fff;
         }
 
         .main-table td {
-            border: 0.6pt solid #CFCFCF;
+            border: none;
             padding: 3pt 5pt;
             vertical-align: middle;
             overflow-wrap: anywhere;
@@ -157,22 +158,30 @@
         }
 
         .main-table .header-row {
-            background: #F0F2F5 !important;
-            text-transform: none;
-            letter-spacing: 0;
-            font-size: 7.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.3pt;
+            font-size: 8pt;
             font-weight: 700;
             text-align: center !important;
+            border-bottom: 0.3pt solid #999 !important;
+            padding: 4pt 5pt !important;
         }
 
         .main-table .label-cell {
             width: 95pt;
             min-width: 95pt;
             max-width: 95pt;
-            background: #F8F9FA !important;
             font-weight: 600;
-            position: relative;
             white-space: nowrap;
+        }
+
+        .main-table .label-cell+td {
+            padding-left: 4pt;
+            border-bottom: 0.3pt solid #e5e5e5;
+        }
+
+        .main-table .label-cell+td::before {
+            content: ': ';
         }
 
         /* pastikan tabel serah terima stabil: khusus halaman detail (bukan SP) */
@@ -186,49 +195,53 @@
             padding-left: 4pt;
         }
 
-        /* Signature matrix */
+        /* Signature matrix - Clean, minimal borders */
         .signature-matrix {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
-            border: 0.6pt solid #CFCFCF;
-            margin-top: 8pt;
-            font-size: 7pt;
+            margin-top: 10pt;
+            font-size: 7.5pt;
         }
 
         .signature-matrix td {
-            border: 0.6pt solid #CFCFCF;
+            border: none;
+            border-right: 0.5pt solid #ddd;
             padding: 0;
             text-align: center;
             vertical-align: middle;
         }
 
+        .signature-matrix td:last-child {
+            border-right: none;
+        }
+
         .signature-matrix .sig-head td {
-            font-weight: 500;
-            border-bottom: none;
+            font-weight: 700;
+            padding: 4pt 2pt;
+            border-bottom: 0.5pt solid #666;
         }
 
         .signature-matrix .sig-role td {
-            border-top: none;
+            font-weight: 600;
+            padding: 3pt 2pt;
         }
 
         .signature-matrix .sig-signs td {
-            height: 15mm;
-            border-top: none;
+            height: 16mm;
         }
 
         .signature-matrix .sig-name td {
-            font-size: 7pt;
-            border-top: none;
-            border-bottom: none;
+            font-size: 7.5pt;
             padding-top: 2pt;
+            padding-bottom: 1pt;
+            font-weight: 600;
         }
 
         .signature-matrix .sig-date td {
-            font-size: 4pt;
-            border-top: none;
+            font-size: 6pt;
             padding-top: 1pt;
-            color: #6C757D;
+            color: #666;
         }
 
         .qr {
@@ -258,12 +271,29 @@
         }
 
         @media print {
+
+            html,
+            body {
+                width: 210mm;
+                height: 297mm;
+            }
+
             .print-button {
                 display: none;
             }
 
             .detail-page {
                 page-break-after: always;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
         }
 
@@ -297,14 +327,14 @@
         .sp-info-table {
             width: 100%;
             border-collapse: collapse;
-            border: 0.6pt solid #CFCFCF;
-            font-size: 7pt;
+            font-size: 7.5pt;
             text-align: left;
             table-layout: fixed;
+            border: 0.5pt solid #999;
         }
 
         .sp-info-table td {
-            border: 0.6pt solid #CFCFCF;
+            border: 0.5pt solid #ccc;
             padding: 3pt 5pt;
             overflow-wrap: anywhere;
             word-break: break-word;
@@ -314,13 +344,18 @@
         .sp-info-table td:nth-child(1),
         .sp-info-table td:nth-child(3) {
             text-align: left !important;
-            background: #F8F9FA !important;
+            font-weight: 600;
+            background: #f5f5f5;
         }
 
-        .sp-info-table td:nth-child(1),
-        .sp-info-table td:nth-child(3) {
-            text-align: left !important;
-            font-weight: 500;
+        .sp-info-table td:nth-child(2),
+        .sp-info-table td:nth-child(4) {
+            border-bottom: 0.3pt solid #e5e5e5;
+        }
+
+        .sp-info-table td:nth-child(2)::before,
+        .sp-info-table td:nth-child(4)::before {
+            content: ': ';
         }
 
         .statement-header {

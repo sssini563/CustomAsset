@@ -42,6 +42,11 @@ services:
       # SESSION_DRIVER: redis
       # CACHE_DRIVER: redis
     volumes:
-      - snipeit-data:/var/lib/snipeit
+      # Persist Snipe-IT app data outside container
+      - ./data/snipeit:/var/lib/snipeit
+      # Persist Laravel storage (logs, cache, files)
+      - ./data/storage:/var/www/html/storage
+      # Persist public uploads (images, logos, attachments)
+      - ./data/uploads:/var/www/html/public/uploads
     networks:
       - snipeit-network

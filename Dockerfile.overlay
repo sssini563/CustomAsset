@@ -15,6 +15,8 @@ COPY . /var/www/html/
 
 # Ensure ownership for web user and keep permissions sane
 # Pastikan ownership benar untuk semua file aplikasi hasil copy
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html \
+ && chmod +x /var/www/html/artisan \
+ && rm -f /var/www/html/bootstrap/cache/*.php
 
 # Do NOT run artisan here (no DB at build-time). The upstream entrypoint handles caching/migrations.

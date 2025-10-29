@@ -33,7 +33,7 @@ fi
 # Create new docker-compose.yml
 echo "Creating docker-compose.yml..."
 cat > docker-compose.yml <<'DOCKER_COMPOSE'
-version: '3.8'
+version: '3.3'
 
 services:
   app:

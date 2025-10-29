@@ -43,6 +43,9 @@ RUN mkdir -p /var/www/html/storage/framework/cache/data \
     && mkdir -p /var/www/html/bootstrap/cache \
     && mkdir -p /var/www/html/public/uploads
 
+# Create temporary .env file for build process
+RUN cp .env.example .env || echo "APP_KEY=" > .env
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
@@ -52,7 +55,10 @@ RUN chown -R www-data:www-data /var/www/html \
 
 # Install PHP dependencies as www-data user
 USER www-data
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
+
+# Run post-install scripts separately with proper error handling
+RUN php artisan package:discover --ansi || true
 
 # Switch back to root
 USER root

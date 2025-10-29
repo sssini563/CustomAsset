@@ -38,20 +38,20 @@ services:
     container_name: snipeit-app
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "9000:9000"
     environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_KEY=${APP_KEY}
-      - APP_URL=http://localhost:8080
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_DATABASE=snipeit
-      - DB_USERNAME=snipeit
-      - DB_PASSWORD=snipeit_password
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://localhost:8080
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: snipeit
+      DB_USERNAME: snipeit
+      DB_PASSWORD: snipeit_password
     volumes:
       - ./storage:/var/www/html/storage
       - ./public/uploads:/var/www/html/public/uploads
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
     depends_on:
       - db
       - redis
@@ -62,11 +62,12 @@ services:
     image: mysql:8.0
     container_name: snipeit-db
     restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
     environment:
-      - MYSQL_ROOT_PASSWORD=root_password
-      - MYSQL_DATABASE=snipeit
-      - MYSQL_USER=snipeit
-      - MYSQL_PASSWORD=snipeit_password
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: snipeit
+      MYSQL_USER: snipeit
+      MYSQL_PASSWORD: snipeit_password
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
@@ -84,10 +85,9 @@ services:
     container_name: snipeit-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
     volumes:
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./public:/var/www/html/public:ro
     depends_on:
       - app

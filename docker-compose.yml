@@ -44,6 +44,14 @@ services:
       - ./resources:/var/www/html/resources
       - ./database:/var/www/html/database
       - ./public:/var/www/html/public
+      # Mount controllers & models khusus Documents agar fitur custom aktif
+      - ./app/Http/Controllers/Documents:/var/www/html/app/Http/Controllers/Documents
+      - ./app/Http/Controllers/SettingsController.php:/var/www/html/app/Http/Controllers/SettingsController.php
+      - ./app/Models/Document.php:/var/www/html/app/Models/Document.php
+      - ./app/Models/DocumentSignature.php:/var/www/html/app/Models/DocumentSignature.php
+      - ./app/Policies/DocumentPolicy.php:/var/www/html/app/Policies/DocumentPolicy.php
+      - ./app/Providers/AuthServiceProvider.php:/var/www/html/app/Providers/AuthServiceProvider.php
+      - ./app/Services/DocumentNumberGenerator.php:/var/www/html/app/Services/DocumentNumberGenerator.php
       # JANGAN mount routes folder atau config folder - bikin error
       # Mount individual route files yang diperlukan saja
       - ./routes/web.php:/var/www/html/routes/web.php:ro

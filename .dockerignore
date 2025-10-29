@@ -7,6 +7,8 @@ app/storage/logs/*
 app/storage/views/*
 vendor/*
 storage/framework/cache/*
+public/uploads
+storage/**
 node_modules
 .vagrant
 .idea

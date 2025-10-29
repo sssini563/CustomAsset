@@ -163,7 +163,6 @@ EXPOSE 9000
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 DOCKERFILE
-fi
 
 # Create docker directory for configs
 mkdir -p docker

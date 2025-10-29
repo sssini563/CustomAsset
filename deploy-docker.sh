@@ -24,10 +24,15 @@ if ! command -v docker-compose &> /dev/null; then
     apt install -y docker-compose
 fi
 
-# Create docker-compose.yml if not exists
-if [ ! -f docker-compose.yml ]; then
-    echo "Creating docker-compose.yml..."
-    cat > docker-compose.yml <<'DOCKER_COMPOSE'
+# Remove old docker-compose.yml if exists
+if [ -f docker-compose.yml ]; then
+    echo "Removing old docker-compose.yml..."
+    rm -f docker-compose.yml
+fi
+
+# Create new docker-compose.yml
+echo "Creating docker-compose.yml..."
+cat > docker-compose.yml <<'DOCKER_COMPOSE'
 version: '3.8'
 
 services:
@@ -101,12 +106,16 @@ networks:
   snipeit-network:
     driver: bridge
 DOCKER_COMPOSE
+
+# Remove old Dockerfile if exists
+if [ -f Dockerfile ]; then
+    echo "Removing old Dockerfile..."
+    rm -f Dockerfile
 fi
 
-# Create Dockerfile if not exists
-if [ ! -f Dockerfile ]; then
-    echo "Creating Dockerfile..."
-    cat > Dockerfile <<'DOCKERFILE'
+# Create new Dockerfile
+echo "Creating Dockerfile..."
+cat > Dockerfile <<'DOCKERFILE'
 FROM php:8.3-fpm
 
 # Install system dependencies

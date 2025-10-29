@@ -1,0 +1,52 @@
+# Customizable image: PHP 8.3 + Apache, with vendor installed from composer (no dev, no scripts)
+# Intended as an alternative to the upstream snipe/snipe-it base.
+
+# 1) Composer vendor build stage (no-scripts to avoid artisan during build)
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+
+# 2) Runtime stage: PHP 8.3 Apache with necessary extensions
+FROM php:8.3-apache
+
+# Install system dependencies for PHP extensions
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libzip-dev \
+    libicu-dev \
+    git \
+    unzip \
+  && rm -rf /var/lib/apt/lists/*
+
+# PHP extensions (gd, pdo_mysql, exif, zip, bcmath, intl)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+  && docker-php-ext-install -j"$(nproc)" gd pdo_mysql exif zip bcmath intl \
+  && docker-php-ext-enable opcache
+
+# Enable Apache modules commonly needed by Laravel
+RUN a2enmod rewrite headers expires
+
+# PHP overrides
+COPY docker/php-custom.ini /usr/local/etc/php/conf.d/99-custom.ini
+
+WORKDIR /var/www/html
+
+# Copy app code
+COPY . /var/www/html
+
+# Copy vendor from builder stage
+COPY --from=vendor /app/vendor /var/www/html/vendor
+
+# Create internal data dir if used by app
+RUN mkdir -p /var/lib/snipeit \
+  && chown -R www-data:www-data /var/lib/snipeit /var/www/html \
+  && chmod +x /var/www/html/artisan \
+  && rm -f /var/www/html/bootstrap/cache/*.php
+
+EXPOSE 80
+
+# The default CMD provided by php:apache runs Apache in foreground

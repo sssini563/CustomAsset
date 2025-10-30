@@ -40,12 +40,29 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts \
   && rm /usr/bin/composer
 
-# Create internal data dir if used by app
+# Create internal data dir and storage subdirectories if used by app
 RUN mkdir -p /var/lib/snipeit \
+  && mkdir -p /var/www/html/storage/framework/{cache,sessions,views} \
+  && mkdir -p /var/www/html/storage/logs \
+  && mkdir -p /var/www/html/bootstrap/cache \
   && chown -R www-data:www-data /var/lib/snipeit /var/www/html \
   && chmod +x /var/www/html/artisan \
   && rm -f /var/www/html/bootstrap/cache/*.php
 
+# Create entrypoint script to generate .env from environment variables at runtime
+RUN echo '#!/bin/bash\n\
+set -e\n\
+# Generate .env file from environment variables if it does not exist\n\
+if [ ! -f /var/www/html/.env ]; then\n\
+  echo "Generating .env from environment variables..."\n\
+  env | grep -E "^(APP_|DB_|CACHE_|SESSION_|QUEUE_|REDIS_|MAIL_|PRIVATE_|PUBLIC_|IMAGE_|REQUIRE_|SAML|LDAP|BACKUP_|ENABLE_)" > /var/www/html/.env || true\n\
+fi\n\
+# Execute the original command\n\
+exec "$@"\n\
+' > /usr/local/bin/docker-entrypoint.sh \
+  && chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 80
 
-# The default CMD provided by php:apache runs Apache in foreground
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["apache2-foreground"]

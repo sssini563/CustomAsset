@@ -1,275 +1,174 @@
-# Snipe-IT Custom Asset Deployment Guide
+# Panduan Deploy Aplikasi (Docker)
 
-## Ubuntu Deployment (Native)
+Dokumen ini menjelaskan cara menjalankan aplikasi (Snipe-IT + kustomisasi Documents) menggunakan Docker dengan image overlay yang membake seluruh kode, serta data upload/storage yang disimpan di host (di luar container).
 
-### Quick Start
+## Prasyarat
+
+- Ubuntu 20.04/22.04 (atau setara)
+- Docker Engine dan Docker Compose plugin
+   - Cek: `docker --version` dan `docker compose version`
+- Akses ke database MySQL/MariaDB (server terpisah atau yang sudah tersedia)
+
+## Struktur Penting di Repo
+
+- `docker-compose.yml` (default): build image overlay dari `Dockerfile.overlay` dan menjalankan container app
+- `Dockerfile.overlay`: derive dari `snipe/snipe-it:<tag>` dan menyalin semua kode dari repo ke dalam image
+- `.env.dc`: environment untuk container (APP_URL, DB, session/cache, dll)
+- `docker/php-custom.ini`: override memory/upload PHP
+- `data/` (host): folder untuk penyimpanan persisten
+   - `data/snipeit` → `/var/lib/snipeit` (data internal aplikasi)
+   - `data/storage` → `/var/www/html/storage` (log, cache, file Laravel)
+   - `data/uploads` → `/var/www/html/public/uploads` (upload publik)
+
+Folder `data/*` sudah otomatis di-mount melalui compose untuk memastikan data tidak hilang saat rebuild/recreate container.
+
+## Konfigurasi Environment (.env.dc)
+
+Edit file `.env.dc` di root repo:
+
+- URL aplikasi: `APP_URL=http://IP-ATAU-DOMAIN:8008`
+- Database eksternal:
+   - `DB_HOST=...`, `DB_PORT=3306`, `DB_DATABASE=...`, `DB_USERNAME=...`, `DB_PASSWORD=...`
+- Session & cache (stabil tanpa Redis):
+   - `SESSION_DRIVER=file`
+   - `CACHE_DRIVER=file`
+- Storage:
+   - `PRIVATE_FILESYSTEM_DISK=local`
+   - `PUBLIC_FILESYSTEM_DISK=local` (atau gunakan `public_uploads` bila ingin symlink publik)
+
+Simpan `.env.dc` sebelum build.
+
+## Build & Run (Pertama Kali)
+
 ```bash
-# Download and run deployment script
-sudo bash deploy-ubuntu.sh
+# 1) Ambil kode terbaru
+git pull
+
+# 2) Build image overlay (tanpa cache agar pasti fresh)
+docker compose build --no-cache
+
+# 3) Jalankan container
+docker compose up -d --force-recreate
+
+# 4) (Opsional) Perbaiki permission bila ada error write
+docker exec -it snipeit-app bash -lc 'chown -R www-data:www-data /var/www/html/storage /var/www/html/public/uploads /var/lib/snipeit'
+
+# 5) Bersihkan & cache ulang konfigurasi
+docker exec -it snipeit-app php artisan optimize:clear
+docker exec -it snipeit-app php artisan config:cache
+docker exec -it snipeit-app php artisan route:cache
+
+# 6) Migrasi database
+docker exec -it snipeit-app php artisan migrate --no-interaction --force
 ```
 
-### Manual Steps After Deployment
+Akses aplikasi: `http://IP-ATAU-DOMAIN:8008`.
 
-1. **Configure Database**
-   ```bash
-   # Login to MySQL
-   sudo mysql -u root -p
-   
-   # Create database and user
-   CREATE DATABASE snipeit CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   CREATE USER 'snipeit'@'localhost' IDENTIFIED BY 'your_secure_password';
-   GRANT ALL PRIVILEGES ON snipeit.* TO 'snipeit'@'localhost';
-   FLUSH PRIVILEGES;
-   EXIT;
-   ```
+Jika database masih kosong (install baru), ikuti wizard Setup di `/setup` untuk membuat admin pertama.
 
-2. **Update .env file**
-   ```bash
-   cd /var/www/snipe-it
-   sudo nano .env
-   ```
-   
-   Update these values:
-   ```
-   APP_URL=http://your-domain.com
-   DB_DATABASE=snipeit
-   DB_USERNAME=snipeit
-   DB_PASSWORD=your_secure_password
-   ```
+## Redeploy / Update
 
-3. **Run Migrations**
-   ```bash
-   cd /var/www/snipe-it
-   php artisan migrate
-   php artisan db:seed
-   ```
-
-4. **Create First Admin User**
-   ```bash
-   php artisan snipeit:user --first_name=Admin --username=admin --email=admin@example.com --password=admin123
-   ```
-
----
-
-## Docker Deployment
-
-### Quick Start
 ```bash
-# Download and run Docker deployment script
-sudo bash deploy-docker.sh
+git pull
+docker compose build --no-cache
+docker compose up -d --force-recreate
+docker exec -it snipeit-app php artisan optimize:clear
+docker exec -it snipeit-app php artisan config:cache
+docker exec -it snipeit-app php artisan route:cache
 ```
 
-### Manual Docker Setup
+## Pin Versi Image Upstream
 
-1. **Build and Start Containers**
-   ```bash
-   docker-compose up -d --build
-   ```
+`docker-compose.yml` membangun image dari `snipe/snipe-it:<tag>` melalui argumen build `SNIPE_IT_TAG`.
 
-2. **Run Migrations**
-   ```bash
-   docker-compose exec app php artisan migrate --force
-   docker-compose exec app php artisan db:seed --force
-   ```
+- Default: `v8.3.3` (ubah ke `latest` jika tag tidak tersedia)
+- Lokasi pengaturan:
 
-3. **Create Admin User**
-   ```bash
-   docker-compose exec app php artisan snipeit:user \
-     --first_name=Admin \
-     --username=admin \
-     --email=admin@example.com \
-     --password=admin123
-   ```
-
-### Useful Docker Commands
-```bash
-# View logs
-docker-compose logs -f app
-
-# Access container shell
-docker-compose exec app bash
-
-# Restart services
-docker-compose restart
-
-# Stop all services
-docker-compose down
-
-# Stop and remove volumes
-docker-compose down -v
+```yaml
+build:
+   args:
+      SNIPE_IT_TAG: v8.3.3
 ```
 
----
+Catatan: Vendor bawaan dari image upstream dipertahankan; kode kustom dibake via `Dockerfile.overlay` untuk menghindari mismatch.
 
-## Update Existing Installation
+## Uploads & Storage
 
-### Native Ubuntu
+- Semua upload dan file Laravel disimpan di host pada `./data/*` sesuai mapping:
+   - `./data/uploads` → `/var/www/html/public/uploads`
+   - `./data/storage` → `/var/www/html/storage`
+   - `./data/snipeit` → `/var/lib/snipeit`
+- Pastikan permission benar jika ada error tulis (lihat perintah chown di atas).
+
+Jika ingin memakai disk publik `public_uploads` (symlink):
+
 ```bash
-sudo bash update.sh
+# Ubah PUBLIC_FILESYSTEM_DISK=public_uploads di .env.dc
+docker exec -it snipeit-app php artisan storage:link
+docker exec -it snipeit-app php artisan optimize:clear
+docker exec -it snipeit-app php artisan config:cache
 ```
 
-### Docker
-```bash
-git pull origin main
-docker-compose down
-docker-compose up -d --build
-docker-compose exec app php artisan migrate --force
-docker-compose exec app php artisan cache:clear
-```
+## Redis (Opsional)
 
----
+Default menggunakan file untuk session & cache. Bila ingin Redis:
 
-## System Requirements
+- Pastikan Redis dapat diakses
+- Set di `.env.dc`:
+   - `SESSION_DRIVER=redis`, `CACHE_DRIVER=redis`
+   - `REDIS_HOST=...`, `REDIS_PORT=6379`
+- Recreate container dan refresh cache.
 
-### Minimum Requirements
-- Ubuntu 20.04 LTS or newer
-- PHP 8.1+ (8.3 recommended)
-- MySQL 5.7+ or MariaDB 10.2+
-- Nginx or Apache
-- 2GB RAM minimum
-- 10GB disk space
-
-### Recommended Requirements
-- Ubuntu 22.04 LTS
-- PHP 8.3
-- MySQL 8.0
-- 4GB RAM
-- 20GB disk space
-- Redis for caching
-
----
+Jika Redis bermasalah, kembalikan ke `file` agar login stabil.
 
 ## Troubleshooting
 
-### Permission Issues
+- 500 saat login (Redis/session):
+   - Pakai `SESSION_DRIVER=file` dan `CACHE_DRIVER=file`, lalu clear cache.
+
+- Memory exhausted di PHP:
+   - `docker/php-custom.ini` sudah menaikkan memory_limit=2048M. Verifikasi:
+      ```bash
+      docker exec -it snipeit-app php -i | grep -i memory_limit
+      docker exec -it snipeit-app php -i | grep -i "additional .ini files"
+      ```
+
+- Perubahan kode tidak terlihat:
+   - Build ulang tanpa cache, lalu jalankan `optimize:clear`, `config:cache`, `route:cache`.
+
+- Cek log cepat:
+   - Laravel: `./data/storage/logs/laravel.log`
+   - Apache: `docker exec -it snipeit-app bash -lc 'tail -n 200 /var/log/apache2/error.log'`
+
+## Backup & Restore (Host Mounts)
+
+Karena data dipetakan ke host, cukup backup folder `data/` dan database.
+
 ```bash
-cd /var/www/snipe-it
-sudo chown -R www-data:www-data .
-sudo chmod -R 755 .
-sudo chmod -R 775 storage
-sudo chmod -R 775 bootstrap/cache
-sudo chmod -R 775 public/uploads
+# Backup database (contoh MySQL)
+mysqldump -h <DB_HOST> -u <DB_USER> -p <DB_NAME> > backup_$(date +%Y%m%d).sql
+
+# Backup files (uploads, storage, snipeit internal)
+tar -czf snipeit_data_$(date +%Y%m%d).tar.gz data/
 ```
 
-### Clear All Caches
+Restore dengan mengekstrak kembali `data/` ke lokasi repo dan restore database dump.
+
+## Ringkasan Perintah Cepat
+
 ```bash
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-composer dump-autoload
+# Build & Run
+docker compose build --no-cache
+docker compose up -d --force-recreate
+
+# Migrasi
+docker exec -it snipeit-app php artisan migrate --no-interaction --force
+
+# Cache
+docker exec -it snipeit-app php artisan optimize:clear
+docker exec -it snipeit-app php artisan config:cache
+docker exec -it snipeit-app php artisan route:cache
+
+# Log aplikasi
+docker exec -it snipeit-app bash -lc 'tail -n 200 storage/logs/laravel.log'
 ```
-
-### Database Issues
-```bash
-# Check database connection
-php artisan tinker
-DB::connection()->getPdo();
-
-# Reset migrations (WARNING: destroys data)
-php artisan migrate:fresh --seed
-```
-
-### Nginx Not Starting
-```bash
-# Test configuration
-sudo nginx -t
-
-# Check error logs
-sudo tail -f /var/log/nginx/error.log
-
-# Restart Nginx
-sudo systemctl restart nginx
-```
-
-### PHP-FPM Issues
-```bash
-# Check PHP-FPM status
-sudo systemctl status php8.3-fpm
-
-# Restart PHP-FPM
-sudo systemctl restart php8.3-fpm
-
-# Check logs
-sudo tail -f /var/log/php8.3-fpm.log
-```
-
----
-
-## Production Optimization
-
-### Enable OPcache
-Edit `/etc/php/8.3/fpm/php.ini`:
-```ini
-opcache.enable=1
-opcache.memory_consumption=128
-opcache.interned_strings_buffer=8
-opcache.max_accelerated_files=4000
-opcache.revalidate_freq=60
-```
-
-### Setup SSL with Let's Encrypt
-```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com
-```
-
-### Setup Cron Jobs
-```bash
-sudo crontab -e
-```
-Add:
-```
-* * * * * cd /var/www/snipe-it && php artisan schedule:run >> /dev/null 2>&1
-```
-
-### Setup Queue Worker
-Create `/etc/supervisor/conf.d/snipeit-worker.conf`:
-```ini
-[program:snipeit-worker]
-process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/snipe-it/artisan queue:work --sleep=3 --tries=3
-autostart=true
-autorestart=true
-user=www-data
-numprocs=1
-redirect_stderr=true
-stdout_logfile=/var/www/snipe-it/storage/logs/worker.log
-```
-
-Then:
-```bash
-sudo supervisorctl reread
-sudo supervisorctl update
-sudo supervisorctl start snipeit-worker:*
-```
-
----
-
-## Backup & Restore
-
-### Backup
-```bash
-# Database backup
-mysqldump -u snipeit -p snipeit > backup_$(date +%Y%m%d).sql
-
-# Files backup
-tar -czf snipeit_files_$(date +%Y%m%d).tar.gz /var/www/snipe-it
-```
-
-### Restore
-```bash
-# Restore database
-mysql -u snipeit -p snipeit < backup_20250129.sql
-
-# Restore files
-tar -xzf snipeit_files_20250129.tar.gz -C /
-```
-
----
-
-## Support
-
-For issues or questions, check:
-- GitHub: https://github.com/sssini563/CustomAsset
-- Snipe-IT Documentation: https://snipe-it.readme.io/

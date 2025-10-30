@@ -9,7 +9,7 @@ services:
     container_name: snipeit-app-apache
     restart: unless-stopped
     ports:
-      - "8009:80"
+      - "8004:80"
     env_file:
       - .env.dc
     environment:

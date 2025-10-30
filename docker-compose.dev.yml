@@ -1,0 +1,46 @@
+version: '3.3'
+
+volumes:
+  snipeit-data:
+    driver: local
+
+networks:
+  snipeit-network:
+    driver: bridge
+
+services:
+  app:
+    # Pakai image overlay yang sudah membake custom code
+    # Mount di bawah akan override file-file tertentu untuk dev cepat
+    image: custom-snipe-it:8.3.3-overlay
+    container_name: snipeit-app
+    restart: unless-stopped
+    ports:
+      - "8008:80"
+    env_file:
+      - .env.dc
+    environment:
+      PHP_MEMORY_LIMIT: 2G
+      PHP_UPLOAD_MAX_FILESIZE: 100M
+      PHP_POST_MAX_SIZE: 100M
+    volumes:
+      - snipeit-data:/var/lib/snipeit
+      # Optional: override PHP ini juga saat dev
+      - ./docker/php-custom.ini:/usr/local/etc/php/conf.d/99-custom.ini
+      # Safe mounts untuk pengembangan (JANGAN mount satu folder app/ penuh)
+      - ./resources:/var/www/html/resources
+      - ./database:/var/www/html/database
+      - ./public:/var/www/html/public
+      # Controllers & models khusus Documents agar fitur custom aktif
+      - ./app/Http/Controllers/Documents:/var/www/html/app/Http/Controllers/Documents
+      - ./app/Http/Controllers/SettingsController.php:/var/www/html/app/Http/Controllers/SettingsController.php
+      - ./app/Models/Document.php:/var/www/html/app/Models/Document.php
+      - ./app/Models/DocumentSignature.php:/var/www/html/app/Models/DocumentSignature.php
+      - ./app/Policies/DocumentPolicy.php:/var/www/html/app/Policies/DocumentPolicy.php
+      - ./app/Providers/AuthServiceProvider.php:/var/www/html/app/Providers/AuthServiceProvider.php
+      - ./app/Services/DocumentNumberGenerator.php:/var/www/html/app/Services/DocumentNumberGenerator.php
+      # Mount individual route files saja (hindari routes/console.php)
+      - ./routes/web.php:/var/www/html/routes/web.php:ro
+      - ./routes/api.php:/var/www/html/routes/api.php:ro
+    networks:
+      - snipeit-network

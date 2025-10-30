@@ -24,6 +24,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 # Enable Apache modules commonly needed by Laravel
 RUN a2enmod rewrite headers expires
 
+# Apache vhost configuration (DocumentRoot = /var/www/html/public)
+COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+
 # PHP overrides
 COPY docker/php-custom.ini /usr/local/etc/php/conf.d/99-custom.ini
 

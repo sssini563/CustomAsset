@@ -21,21 +21,21 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install -j"$(nproc)" gd pdo_mysql exif zip bcmath intl \
   && docker-php-ext-enable opcache
 
-# 2) Composer vendor build (run after extensions are installed)
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-WORKDIR /var/www/html
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts \
-  && rm /usr/bin/composer
-
 # Enable Apache modules commonly needed by Laravel
 RUN a2enmod rewrite headers expires
 
 # PHP overrides
 COPY docker/php-custom.ini /usr/local/etc/php/conf.d/99-custom.ini
 
-# Copy app code (vendor already installed above)
+WORKDIR /var/www/html
+
+# Copy all app code first (composer.json autoload needs database folder to exist)
 COPY . /var/www/html
+
+# 2) Install composer dependencies
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts \
+  && rm /usr/bin/composer
 
 # Create internal data dir if used by app
 RUN mkdir -p /var/lib/snipeit \

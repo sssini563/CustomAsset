@@ -929,6 +929,13 @@ class AssetsController extends Controller
         return view('hardware/quickscan-checkin')->with('statusLabel_list', Helper::statusLabelList());
     }
 
+    public function qrScan()
+    {
+        $this->authorize('index', Asset::class);
+
+        return view('hardware/qr-scan');
+    }
+
 
     public function dueForAudit()
     {

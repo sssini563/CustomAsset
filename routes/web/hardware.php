@@ -40,6 +40,13 @@ Route::group(
                 ->push('Quickscan Checkin', route('hardware/quickscancheckin'))
             );
 
+        Route::get('qr-scan', [AssetsController::class, 'qrScan'])
+            ->name('hardware.qr-scan')
+            ->breadcrumbs(fn (Trail $trail) =>
+            $trail->parent('hardware.index')
+                ->push(trans('general.scan_qr'), route('hardware.qr-scan'))
+            );
+
         Route::get('requested', [AssetsController::class, 'getRequestedIndex'])
             ->name('assets.requested')
             ->breadcrumbs(fn (Trail $trail) =>

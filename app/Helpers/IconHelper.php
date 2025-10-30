@@ -99,6 +99,8 @@ class IconHelper
                 return 'fas fa-file-import';
             case 'search':
                 return 'fas fa-magnifying-glass';
+            case 'qrcode':
+                return 'fas fa-qrcode';
             case 'alerts':
                 return 'far fa-bell';
             case 'password':

@@ -3492,6 +3492,12 @@ dir="{{ Helper::determineLanguageDirection() }}">
                                                     <span class="sr-only">{{ trans('general.search') }}</span>
                                                 </button>
                                             </div>
+                                            <div class="col-xs-1" style="padding-left: 5px;">
+                                                <a href="{{ route('hardware.qr-scan') }}" class="btn btn-primary pull-right" data-tooltip="true" data-placement="bottom" data-title="{{ trans('general.scan_qr') }}">
+                                                    <x-icon type="qrcode" />
+                                                    <span class="sr-only">{{ trans('general.scan_qr') }}</span>
+                                                </a>
+                                            </div>
                                         </div>
                                     </form>
                                 </li>

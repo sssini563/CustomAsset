@@ -3479,7 +3479,7 @@ dir="{{ Helper::determineLanguageDirection() }}">
                                     <form class="navbar-form navbar-left form-horizontal" role="search"
                                           action="{{ route('findbytag/hardware') }}" method="get">
                                         <div class="col-xs-12 col-md-12">
-                                            <div class="col-xs-12 form-group">
+                                            <div class="col-xs-10 form-group">
                                                 <label class="sr-only" for="tagSearch">
                                                     {{ trans('general.lookup_by_tag') }}
                                                 </label>
@@ -3487,12 +3487,12 @@ dir="{{ Helper::determineLanguageDirection() }}">
                                                 <input type="hidden" name="topsearch" value="true" id="search">
                                             </div>
                                             <div class="col-xs-1">
-                                                <button type="submit" id="topSearchButton" class="btn btn-primary pull-right">
+                                                <button type="submit" id="topSearchButton" class="btn btn-primary pull-right" style="margin-right: 5px;">
                                                     <x-icon type="search" />
                                                     <span class="sr-only">{{ trans('general.search') }}</span>
                                                 </button>
                                             </div>
-                                            <div class="col-xs-1" style="padding-left: 5px;">
+                                            <div class="col-xs-1" style="margin-left: 10pt;">
                                                 <a href="{{ route('hardware.qr-scan') }}" class="btn btn-primary pull-right" data-tooltip="true" data-placement="bottom" data-title="{{ trans('general.scan_qr') }}">
                                                     <x-icon type="qrcode" />
                                                     <span class="sr-only">{{ trans('general.scan_qr') }}</span>

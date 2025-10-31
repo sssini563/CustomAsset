@@ -10,13 +10,16 @@ services:
     env_file: .env.dc
 
     volumes:
-      - ./app:/var/www/html/app
-      - ./resources:/var/www/html/resources
-      - ./routes:/var/www/html/routes
-      - ./config:/var/www/html/config
-      - ./database/migrations:/var/www/html/database/migrations
+      # Mount only the project parts needed to override HTML/views safely
+      # Keep vendor and bootstrap cache inside image to avoid missing providers
+      - ./resources/views:/var/www/html/resources/views
+      - ./routes/web.php:/var/www/html/routes/web.php
+      - ./public:/var/www/html/public
+
+      # Persist runtime data outside container
       - ./data/uploads:/var/www/html/public/uploads
       - ./data/storage:/var/www/html/storage
       - ./data/snipeit:/var/lib/snipeit
-      - ./storage/framework/views:/var/www/html/storage/framework/views
-      # ini penting! biar vendor bawaan image tidak ketimpa
+
+      # Ensure view cache path exists on host and is mounted
+      - ./data/storage/framework/views:/var/www/html/storage/framework/views

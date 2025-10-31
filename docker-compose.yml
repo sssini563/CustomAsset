@@ -14,13 +14,16 @@ services:
       PHP_UPLOAD_MAX_FILESIZE: 100M
       PHP_POST_MAX_SIZE: 100M
     volumes:
-      # Mount custom files to override defaults (read-only to prevent container writes)
-      - ./app:/var/www/html/app:ro
-      - ./resources:/var/www/html/resources:ro
-      - ./routes:/var/www/html/routes:ro
-      - ./database/migrations:/var/www/html/database/migrations:ro
-      - ./config:/var/www/html/config:ro
-      - ./public:/var/www/html/public:ro
+      # Mount custom files to override defaults (read-write)
+      - ./app:/var/www/html/app
+      - ./resources:/var/www/html/resources
+      - ./routes/web.php:/var/www/html/routes/web.php
+      # Skip routes/console.php (causes memory exhaustion loop)
+      # Skip database/migrations mount (image needs to write Passport migrations)
+      # Skip config mount (can cause issues with cached config)
+      # Public folder: only mount specific custom files if needed, not whole folder
+      - ./public/css:/var/www/html/public/css
+      - ./public/js:/var/www/html/public/js
       # Persist data
       - ./data/snipeit:/var/lib/snipeit
       - ./data/logs:/var/www/html/storage/logs

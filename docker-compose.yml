@@ -19,3 +19,6 @@ services:
       - ./data/snipeit:/var/lib/snipeit
       - ./data/logs:/var/www/html/storage/logs
       - ./data/uploads:/var/www/html/public/uploads
+      - ./data/cache:/var/www/html/storage/framework/cache
+      - ./data/sessions:/var/www/html/storage/framework/sessions
+      - ./data/views:/var/www/html/storage/framework/views

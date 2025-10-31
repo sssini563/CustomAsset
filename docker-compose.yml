@@ -7,16 +7,15 @@ services:
     restart: unless-stopped
     ports:
       - "8008:80"
-  env_file:
-    - .env.dc
-  volumes:
-    - /app:/var/www/html/app
-    - ./resources:/var/www/html/resources
-    - ./routes:/var/www/html/routes
-    - ./config:/var/www/html/config
-    - ./public:/var/www/html/public
-    - ./database/migrations:/var/www/html/database/migrations
-    # Persist data
-    - ./data/snipeit:/var/lib/snipeit
-    - ./data/logs:/var/www/html/storage/logs
-    - ./data/uploads:/var/www/html/public/uploads
+    env_file: .env.dc
+    volumes:
+      - ./app:/var/www/html/app
+      - ./resources:/var/www/html/resources
+      - ./routes:/var/www/html/routes
+      - ./config:/var/www/html/config
+      - ./public:/var/www/html/public
+      - ./database/migrations:/var/www/html/database/migrations
+      # Persist data
+      - ./data/snipeit:/var/lib/snipeit
+      - ./data/logs:/var/www/html/storage/logs
+      - ./data/uploads:/var/www/html/public/uploads

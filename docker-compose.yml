@@ -18,5 +18,5 @@ services:
       - ./data/uploads:/var/www/html/public/uploads
       - ./data/storage:/var/www/html/storage
       - ./data/snipeit:/var/lib/snipeit
+      - ./storage/framework/views:/var/www/html/storage/framework/views
       # ini penting! biar vendor bawaan image tidak ketimpa
-      - /var/www/html/vendor

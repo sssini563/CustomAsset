@@ -7,20 +7,16 @@ services:
     restart: unless-stopped
     ports:
       - "8008:80"
-    env_file:
-      - .env.dc
-    environment:
-      PHP_MEMORY_LIMIT: 2G
-      PHP_UPLOAD_MAX_FILESIZE: 100M
-      PHP_POST_MAX_SIZE: 100M
-    volumes:
-      # Temporarily disable ALL code mounts to test if memory issue is from mounted files
-      # - ./app:/var/www/html/app
-      # - ./resources:/var/www/html/resources
-      # - ./routes/web.php:/var/www/html/routes/web.php
-      # - ./public/css:/var/www/html/public/css
-      # - ./public/js:/var/www/html/public/js
-      # Persist data only
-      - ./data/snipeit:/var/lib/snipeit
-      - ./data/logs:/var/www/html/storage/logs
-      - ./data/uploads:/var/www/html/public/uploads
+  env_file:
+    - .env.dc
+  volumes:
+    - /app:/var/www/html/app
+    - ./resources:/var/www/html/resources
+    - ./routes:/var/www/html/routes
+    - ./config:/var/www/html/config
+    - ./public:/var/www/html/public
+    - ./database/migrations:/var/www/html/database/migrations
+    # Persist data
+    - ./data/snipeit:/var/lib/snipeit
+    - ./data/logs:/var/www/html/storage/logs
+    - ./data/uploads:/var/www/html/public/uploads

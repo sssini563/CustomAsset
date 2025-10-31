@@ -10,16 +10,13 @@ services:
     env_file: .env.dc
 
     volumes:
-      # Mount kode yang sering kamu ubah (aman untuk dev)
       - ./app:/var/www/html/app
       - ./resources:/var/www/html/resources
       - ./routes:/var/www/html/routes
       - ./config:/var/www/html/config
       - ./database/migrations:/var/www/html/database/migrations
-
-      # Persist data di luar container
       - ./data/uploads:/var/www/html/public/uploads
       - ./data/storage:/var/www/html/storage
-
-      # (Opsional) kalau perlu simpan data internal Snipe-IT seperti cron/logs
       - ./data/snipeit:/var/lib/snipeit
+      # ini penting! biar vendor bawaan image tidak ketimpa
+      - /var/www/html/vendor

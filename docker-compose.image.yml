@@ -1,0 +1,39 @@
+services:
+  app:
+    image: snipe/snipe-it:8.3.3
+    container_name: snipeit-app
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${APP_PORT:-8000}:80"
+    env_file:
+      - .env
+    environment:
+      # Fast overrides without touching .env
+      PHP_UPLOAD_LIMIT: 100M
+      PHP_POST_MAX_SIZE: 100M
+      PHP_UPLOAD_MAX_FILESIZE: 100M
+      PHP_MEMORY_LIMIT: 2048M
+      # Skip auto migrations on every boot if you prefer manual control
+      SKIP_AUTORUN_MIGRATIONS: "true"
+    volumes:
+      # Persist runtime data
+      - ./data/uploads:/var/www/html/public/uploads
+      - ./data/storage/logs:/var/www/html/storage/logs
+      # Optional: custom php.ini overrides (if exists)
+      - ./docker/php-custom.ini:/usr/local/etc/php/conf.d/99-custom.ini
+      # Optional: safe dev overrides to avoid rebuilds (uncomment as needed)
+      # - ./resources:/var/www/html/resources
+      # - ./database:/var/www/html/database
+      # - ./public:/var/www/html/public
+      # - ./routes/web.php:/var/www/html/routes/web.php:ro
+      # - ./routes/api.php:/var/www/html/routes/api.php:ro
+      # - ./app/Providers/SnipeTranslationServiceProvider.php:/var/www/html/app/Providers/SnipeTranslationServiceProvider.php
+      # - ./app/Services/SnipeTranslator.php:/var/www/html/app/Services/SnipeTranslator.php
+    networks:
+      - snipeit-network
+
+networks:
+  snipeit-network:
+    driver: bridge

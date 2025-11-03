@@ -4,10 +4,15 @@
 ARG SNIPE_IT_TAG=latest
 FROM snipe/snipe-it:${SNIPE_IT_TAG}
 
-# PHP memory/upload overrides (support both Debian and official PHP layout)
-COPY docker/php-custom.ini /etc/php/8.3/apache2/conf.d/99-custom.ini
-COPY docker/php-custom.ini /etc/php/8.3/cli/conf.d/99-custom.ini
+# PHP memory/upload overrides (support multiple PHP layouts/versions)
+# Copy to generic location used by official PHP images
 COPY docker/php-custom.ini /usr/local/etc/php/conf.d/99-custom.ini
+# Copy to Debian-style locations if they exist (handle 8.2/8.3 gracefully)
+RUN set -e; \
+		for v in 8.4 8.3 8.2 8.1; do \
+			if [ -d "/etc/php/${v}/apache2/conf.d" ]; then cp /usr/local/etc/php/conf.d/99-custom.ini "/etc/php/${v}/apache2/conf.d/99-custom.ini"; fi; \
+			if [ -d "/etc/php/${v}/cli/conf.d" ]; then cp /usr/local/etc/php/conf.d/99-custom.ini "/etc/php/${v}/cli/conf.d/99-custom.ini"; fi; \
+		done
 
 # Copy seluruh kode aplikasi dari repo ini (kecuali yang diabaikan oleh .dockerignore)
 # Ini akan menimpa file bawaan image, namun tidak menyertakan vendor/ bila sudah di-ignore.

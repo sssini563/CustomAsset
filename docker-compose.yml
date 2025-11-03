@@ -1,25 +1,49 @@
-version: '3.3'
-
 services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: snipeit-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./docker/column-statistics.cnf:/etc/mysql/conf.d/column-statistics.cnf:ro
+    networks:
+      - snipeit-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
     image: snipe/snipe-it:latest
     container_name: snipeit-app
     restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # enforce internal DB host
+      DB_HOST: mariadb
+      DB_PORT: 3306
     ports:
-      - "8008:80"
-    env_file: .env.dc
-
+      - "${APP_PORT:-8000}:80"
     volumes:
-      # Mount only the project parts needed to override HTML/views safely
-      # Keep vendor and bootstrap cache inside image to avoid missing providers
-      - ./resources/views:/var/www/html/resources/views
-      - ./routes/web.php:/var/www/html/routes/web.php
-      - ./public:/var/www/html/public
-
-      # Persist runtime data outside container
       - ./data/uploads:/var/www/html/public/uploads
-      - ./data/storage:/var/www/html/storage
-      - ./data/snipeit:/var/lib/snipeit
+      - ./data/storage/logs:/var/www/html/storage/logs
+    networks:
+      - snipeit-network
 
-      # Ensure view cache path exists on host and is mounted
-      - ./data/storage/framework/views:/var/www/html/storage/framework/views
+networks:
+  snipeit-network:
+    driver: bridge
+
+volumes:
+  mariadb_data:
+    driver: local

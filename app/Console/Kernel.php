@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Console\Commands\ResetBranding;
 use App\Console\Commands\ImportLocations;
 use App\Console\Commands\ReEncodeCustomFieldNames;
 use App\Console\Commands\RestoreDeletedUsers;
@@ -40,9 +39,5 @@ class Kernel extends ConsoleKernel
     {
         require base_path('routes/console.php');
         $this->load(__DIR__.'/Commands');
-        // Ensure our custom commands are registered (autoload should also find these)
-        $this->commands([
-            ResetBranding::class,
-        ]);
     }
 }

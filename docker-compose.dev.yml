@@ -1,4 +1,4 @@
-# Compose file for production.
+# Development compose file - extends docker-compose.yml with Redis cache
 
 volumes:
   storage:
@@ -6,17 +6,21 @@ volumes:
 
 services:
   app:
-    image: snipe/snipe-it:${APP_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: snipe-app
+    restart: unless-stopped
     volumes:
       - ./:/var/www/html
-      - ./vendor:/var/www/html/vendor
       - storage:/var/lib/snipeit
     ports:
       - "${APP_PORT:-8000}:80"
     env_file:
       - .env
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     networks:
       - snipe-net
 

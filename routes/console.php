@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Setting;
 use Illuminate\Foundation\Inspiring;
 
 /*
@@ -18,26 +19,19 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('snipeit:travisci-install', function () {
-    try {
-        // Lazy load Setting model only when command is actually run
-        $Setting = app(\App\Models\Setting::class);
-        
-        if (! $Setting::setupCompleted()) {
-            $settings = new $Setting();
-            $settings->site_name = 'test-ci';
-            $settings->alert_email = 'test@example.com';
-            $settings->alerts_enabled = 1;
-            $settings->brand = 1;
-            $settings->locale = 'en';
-            $settings->default_currency = 'USD';
-            $settings->user_id = 1;
-            $settings->email_domain = 'example.com';
-            $settings->email_format = 'filastname';
-            $settings->save();
-        } else {
-            $this->comment('Setup already ran');
-        }
-    } catch (\Exception $e) {
-        $this->error('Setup failed: ' . $e->getMessage());
+    if (! Setting::setupCompleted()) {
+        $settings = new Setting();
+        $settings->site_name = 'test-ci';
+        $settings->alert_email = 'test@example.com';
+        $settings->alerts_enabled = 1;
+        $settings->brand = 1;
+        $settings->locale = 'en';
+        $settings->default_currency = 'USD';
+        $settings->user_id = 1;
+        $settings->email_domain = 'example.com';
+        $settings->email_format = 'filastname';
+        $settings->save();
+    } else {
+        $this->comment('Setup already ran');
     }
 })->purpose('Travis-cli install script for unit tests');

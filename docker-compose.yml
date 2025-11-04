@@ -22,10 +22,10 @@ services:
     entrypoint: ["/bin/bash", "-c"]
     command:
       - |
-        chmod +x /var/www/html/artisan
-        chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-        chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-        exec /docker-entrypoint.sh
+        chmod +x /var/www/html/artisan || true
+        chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
+        chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
+        exec /startup.sh
 
   redis:
     image: redis:7-alpine

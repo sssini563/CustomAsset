@@ -11,6 +11,7 @@ services:
     volumes:
       - ./:/var/www/html
       - ./vendor:/var/www/html/vendor
+      - ./docker/fix-permissions.sh:/fix-permissions.sh:ro
       - storage:/var/lib/snipeit
     ports:
       - "${APP_PORT:-8000}:80"
@@ -20,16 +21,8 @@ services:
       - redis
     networks:
       - snipe-net
-    entrypoint: ["/bin/bash", "-c"]
-    command:
-      - |
-        set -e
-        echo "Fixing permissions..."
-        chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-        chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-        chmod +x /var/www/html/artisan
-        echo "Starting application..."
-        exec /startup.sh
+    entrypoint: ["/bin/bash"]
+    command: ["/fix-permissions.sh"]
 
   redis:
     image: redis:7-alpine

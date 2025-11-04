@@ -57,8 +57,8 @@
                                                     <i class="fas fa-camera"></i> Buka Kamera
                                                 </button>
                                                 <small class="text-warning" style="display: block; margin-top: 10px;">
-                                                    <i class="fas fa-exclamation-triangle"></i> Memerlukan HTTPS atau
-                                                    setting khusus
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span id="camera-status-hint">Checking...</span>
                                                 </small>
                                             </div>
                                         </div>
@@ -191,6 +191,61 @@
             const qrReaderDiv = document.getElementById('qr-reader');
             const mainOptions = document.getElementById('main-options');
 
+            // Check if using 127.0.0.1 instead of localhost
+            const currentHost = window.location.hostname;
+            const isLocalIP = currentHost === '127.0.0.1';
+            const isHTTP = window.location.protocol === 'http:';
+            const isLocalhost = currentHost === 'localhost';
+
+            // Show warning if using 127.0.0.1 on HTTP
+            if (isLocalIP && isHTTP) {
+                qrReaderDiv.style.display = 'none';
+                mainOptions.style.display = 'none';
+                infoDiv.className = 'alert alert-warning';
+                infoDiv.style.display = 'block';
+
+                const localhostUrl = window.location.href.replace('127.0.0.1', 'localhost');
+                infoDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <h4><strong>⚠️ Kamera Tidak Bisa Digunakan di IP 127.0.0.1</strong></h4>
+                    <p>Browser Chrome memblokir akses kamera pada alamat IP 127.0.0.1 untuk keamanan.</p>
+                    
+                    <div style="background: #fff; padding: 15px; border-radius: 5px; margin: 15px 0; text-align: left;">
+                        <strong>✅ SOLUSI TERMUDAH - Ganti URL ke localhost:</strong><br><br>
+                        <div style="background: #f5f5f5; padding: 10px; border-left: 4px solid #5cb85c; margin: 10px 0;">
+                            <strong>Klik tombol di bawah atau copy URL ini:</strong><br>
+                            <code style="font-size: 14px; color: #c7254e; background: #f9f2f4; padding: 2px 6px; border-radius: 3px;">
+                                ${localhostUrl}
+                            </code>
+                        </div>
+                        <button class="btn btn-success btn-lg" onclick="window.location.href='${localhostUrl}'">
+                            <i class="fas fa-external-link-alt"></i> Buka dengan localhost
+                        </button>
+                    </div>
+                    
+                    <details style="margin-top: 15px; text-align: left;">
+                        <summary style="cursor: pointer; font-weight: bold; color: #337ab7;">
+                            <i class="fas fa-info-circle"></i> Alternatif Lain (Klik untuk lihat)
+                        </summary>
+                        <div style="background: #f5f5f5; padding: 15px; margin-top: 10px; border-radius: 5px;">
+                            <strong>Opsi 2: Enable Chrome Flags (Advanced)</strong><br>
+                            1. Buka tab baru: <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code><br>
+                            2. Tambahkan: <code>http://127.0.0.1:8000</code><br>
+                            3. Set "Enable" dan restart Chrome<br><br>
+                            
+                            <strong>Opsi 3: Setup HTTPS (Production)</strong><br>
+                            Setup SSL certificate untuk akses HTTPS yang secure.
+                        </div>
+                    </details>
+                    
+                    <hr>
+                    <button class="btn btn-primary" onclick="resetToMainOptions()">
+                        <i class="fas fa-arrow-left"></i> Kembali & Gunakan Upload/Manual
+                    </button>
+                `;
+                return;
+            }
+
             // Tampilkan area scanner
             qrReaderDiv.style.display = 'block';
             mainOptions.style.display = 'none';
@@ -199,6 +254,11 @@
             infoDiv.style.display = 'block';
 
             try {
+                // Check if mediaDevices is available
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('MediaDevices API not supported');
+                }
+
                 // Test camera access first using getUserMedia
                 console.log('Requesting camera access...');
                 const stream = await navigator.mediaDevices.getUserMedia({
@@ -241,47 +301,58 @@
                 qrReaderDiv.style.display = 'none';
                 infoDiv.className = 'alert alert-danger';
 
+                let errorHTML = '';
+
                 if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                    infoDiv.innerHTML = `
+                    errorHTML = `
                         <i class="fas fa-exclamation-triangle"></i> 
-                        <strong>Akses Kamera Ditolak</strong><br>
-                        Browser tidak mengizinkan akses kamera pada situs HTTP (tidak secure).<br><br>
-                        <strong>Solusi untuk Enable Kamera:</strong><br>
-                        1. Buka tab baru, ketik: <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code><br>
-                        2. Masukkan URL: <code>http://127.0.0.1:8000</code><br>
-                        3. Klik "Enable" dan restart Chrome<br><br>
-                        <button class="btn btn-primary" onclick="resetToMainOptions()">
-                            <i class="fas fa-arrow-left"></i> Kembali & Gunakan Upload/Manual
-                        </button>
+                        <h4><strong>Akses Kamera Ditolak</strong></h4>
+                        <p>Browser memblokir akses kamera karena situs tidak secure (HTTP).</p>
+                        
+                        <div style="background: #fff; padding: 15px; border-radius: 5px; margin: 15px 0; text-align: left;">
+                            <strong>✅ Solusi 1: Gunakan localhost (RECOMMENDED)</strong><br>
+                            Ganti URL dari <code>http://127.0.0.1:8000</code> ke <code>http://localhost:8000</code><br><br>
+                            
+                            <strong>✅ Solusi 2: Enable Chrome Flags</strong><br>
+                            1. Buka: <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code><br>
+                            2. Masukkan URL: <code>${window.location.origin}</code><br>
+                            3. Klik "Enable" dan restart Chrome
+                        </div>
                     `;
                 } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-                    infoDiv.innerHTML = `
+                    errorHTML = `
                         <i class="fas fa-exclamation-triangle"></i> 
-                        <strong>Kamera Tidak Ditemukan</strong><br>
-                        Tidak ada kamera yang terdeteksi di perangkat Anda.<br><br>
-                        <button class="btn btn-primary" onclick="resetToMainOptions()">
-                            <i class="fas fa-arrow-left"></i> Kembali & Gunakan Upload/Manual
-                        </button>
+                        <h4><strong>Kamera Tidak Ditemukan</strong></h4>
+                        <p>Tidak ada kamera yang terdeteksi di perangkat Anda.</p>
+                        <p class="text-muted">Pastikan kamera terpasang dan tidak digunakan aplikasi lain.</p>
                     `;
-                } else if (err.name === 'NotSupportedError') {
-                    infoDiv.innerHTML = `
+                } else if (err.name === 'NotSupportedError' || err.message === 'MediaDevices API not supported') {
+                    errorHTML = `
                         <i class="fas fa-exclamation-triangle"></i> 
-                        <strong>Browser Tidak Support</strong><br>
-                        Browser Anda tidak mendukung akses kamera atau situs ini tidak secure (HTTPS).<br><br>
-                        <button class="btn btn-primary" onclick="resetToMainOptions()">
-                            <i class="fas fa-arrow-left"></i> Kembali & Gunakan Upload/Manual
-                        </button>
+                        <h4><strong>Browser Tidak Support</strong></h4>
+                        <p>Browser Anda tidak mendukung akses kamera atau situs ini tidak secure (HTTPS).</p>
+                        <p class="text-muted">Coba gunakan browser Chrome/Firefox versi terbaru.</p>
                     `;
                 } else {
-                    infoDiv.innerHTML = `
+                    errorHTML = `
                         <i class="fas fa-exclamation-triangle"></i> 
-                        <strong>Error: ${err.name || 'Unknown'}</strong><br>
-                        ${err.message || 'Gagal mengakses kamera.'}<br><br>
-                        <button class="btn btn-primary" onclick="resetToMainOptions()">
-                            <i class="fas fa-arrow-left"></i> Kembali & Gunakan Upload/Manual
-                        </button>
+                        <h4><strong>Error: ${err.name || 'Unknown'}</strong></h4>
+                        <p>${err.message || 'Gagal mengakses kamera.'}</p>
                     `;
                 }
+
+                errorHTML += `
+                    <hr>
+                    <div style="background: #d9edf7; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                        <strong><i class="fas fa-lightbulb"></i> Alternatif: Gunakan Upload Gambar</strong><br>
+                        Anda bisa foto QR code dengan HP, lalu upload gambarnya di sini.
+                    </div>
+                    <button class="btn btn-primary btn-lg" onclick="resetToMainOptions()" style="margin-top: 15px;">
+                        <i class="fas fa-arrow-left"></i> Kembali & Gunakan Upload/Manual
+                    </button>
+                `;
+
+                infoDiv.innerHTML = errorHTML;
             }
         }
 
@@ -366,6 +437,26 @@
             }
         }
 
+        // Check camera status on page load
+        function checkCameraStatus() {
+            const hintElement = document.getElementById('camera-status-hint');
+            const currentHost = window.location.hostname;
+            const isHTTP = window.location.protocol === 'http:';
+            const isLocalIP = currentHost === '127.0.0.1';
+            const isLocalhost = currentHost === 'localhost';
+            const isHTTPS = window.location.protocol === 'https:';
+
+            if (isHTTPS) {
+                hintElement.innerHTML = '<span style="color: #5cb85c;">✓ HTTPS - Kamera Support</span>';
+            } else if (isLocalhost) {
+                hintElement.innerHTML = '<span style="color: #5cb85c;">✓ localhost - Kamera Support</span>';
+            } else if (isLocalIP) {
+                hintElement.innerHTML = '<span style="color: #f0ad4e;">⚠ Gunakan localhost untuk kamera</span>';
+            } else {
+                hintElement.innerHTML = '<span style="color: #d9534f;">✗ Perlu HTTPS untuk kamera</span>';
+            }
+        }
+
         // Allow Enter key on manual input
         document.addEventListener('DOMContentLoaded', function() {
             const manualInput = document.getElementById('manual-asset-tag');
@@ -376,6 +467,9 @@
                     }
                 });
             }
+
+            // Check camera status
+            checkCameraStatus();
         });
     </script>
 @stop

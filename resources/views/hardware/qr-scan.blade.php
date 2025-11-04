@@ -234,6 +234,26 @@
                     throw new Error('MediaDevices API not supported');
                 }
 
+                // Check camera permission status first (if supported)
+                if (navigator.permissions && navigator.permissions.query) {
+                    try {
+                        const permissionStatus = await navigator.permissions.query({
+                            name: 'camera'
+                        });
+                        console.log('Camera permission status:', permissionStatus.state);
+
+                        if (permissionStatus.state === 'denied') {
+                            throw {
+                                name: 'PermissionDeniedError',
+                                message: 'Camera permission was previously denied'
+                            };
+                        }
+                    } catch (permErr) {
+                        console.warn('Permission query not supported or failed:', permErr);
+                        // Continue anyway, getUserMedia will handle it
+                    }
+                }
+
                 // Setup video element
                 qrReaderDiv.innerHTML = `
                     <div style="position: relative; max-width: 640px; margin: 0 auto;">
@@ -252,11 +272,13 @@
                 canvasContext = canvasElement.getContext('2d');
 
                 console.log('Requesting camera access...');
+                console.log('Current protocol:', window.location.protocol);
+                console.log('Current hostname:', window.location.hostname);
+
+                // Request camera with simpler constraints first
                 videoStream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: {
-                            ideal: "environment"
-                        },
+                        facingMode: "environment",
                         width: {
                             ideal: 1280
                         },
@@ -265,6 +287,8 @@
                         }
                     }
                 });
+
+                console.log('Camera access granted!');
 
                 videoElement.srcObject = videoStream;
                 videoElement.setAttribute('playsinline', true);
@@ -284,16 +308,41 @@
                 let errorHTML = '';
 
                 if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                    errorHTML = `
-                        <i class="fas fa-exclamation-triangle"></i> 
-                        <h4><strong>Akses Kamera Ditolak</strong></h4>
-                        <p>Browser memblokir akses kamera karena situs tidak secure (HTTP).</p>
-                        
-                        <div style="background: #fff; padding: 15px; border-radius: 5px; margin: 15px 0; text-align: left;">
-                            <strong>✅ Solusi: Gunakan localhost atau HTTPS</strong><br>
-                            Ganti URL dari <code>http://127.0.0.1:8000</code> ke <code>http://localhost:8000</code>
-                        </div>
-                    `;
+                    const isHTTPS = window.location.protocol === 'https:';
+
+                    if (isHTTPS) {
+                        errorHTML = `
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            <h4><strong>⚠️ Akses Kamera Ditolak</strong></h4>
+                            <p>Browser telah memblokir akses kamera untuk situs ini.</p>
+                            
+                            <div style="background: #fff; padding: 15px; border-radius: 5px; margin: 15px 0; text-align: left;">
+                                <strong>📱 Cara Mengizinkan Kamera:</strong><br><br>
+                                
+                                <strong>1️⃣ Klik icon gembok 🔒 di address bar (kiri URL)</strong><br>
+                                <strong>2️⃣ Pilih "Site settings" atau "Permissions"</strong><br>
+                                <strong>3️⃣ Cari "Camera" → Ubah dari "Block" ke "Allow"</strong><br>
+                                <strong>4️⃣ Refresh halaman ini (F5)</strong><br><br>
+                                
+                                <div style="background: #d9edf7; border-left: 4px solid #31708f; padding: 10px; margin-top: 10px;">
+                                    <strong>💡 Atau coba:</strong><br>
+                                    • Buka Chrome Settings → Privacy and Security → Site Settings → Camera<br>
+                                    • Pastikan <code>${window.location.origin}</code> ada di "Allowed" list
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        errorHTML = `
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            <h4><strong>Akses Kamera Ditolak</strong></h4>
+                            <p>Browser memblokir akses kamera karena situs tidak secure (HTTP).</p>
+                            
+                            <div style="background: #fff; padding: 15px; border-radius: 5px; margin: 15px 0; text-align: left;">
+                                <strong>✅ Solusi: Gunakan localhost atau HTTPS</strong><br>
+                                Ganti URL dari <code>http://127.0.0.1:8000</code> ke <code>http://localhost:8000</code>
+                            </div>
+                        `;
+                    }
                 } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
                     errorHTML = `
                         <i class="fas fa-exclamation-triangle"></i> 

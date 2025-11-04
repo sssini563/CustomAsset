@@ -6,6 +6,11 @@
     @parent
 @stop
 
+{{-- Allow camera access for QR scanner --}}
+@push('meta')
+    <meta http-equiv="Permissions-Policy" content="camera=(self)">
+@endpush
+
 @section('header_right')
     <a href="{{ route('hardware.index') }}" class="btn btn-primary pull-right">
         <x-icon type="arrow-left" /> {{ trans('general.back') }}

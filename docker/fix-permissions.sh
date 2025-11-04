@@ -2,6 +2,14 @@
 set -e
 
 echo "=== Fixing Permissions ==="
+
+# Check if vendor directory is empty and install dependencies
+if [ ! -d "/var/www/html/vendor/laravel" ]; then
+    echo "Vendor directory is empty or incomplete. Installing dependencies..."
+    cd /var/www/html
+    composer install --no-dev --optimize-autoloader --no-interaction || echo "Composer install failed, continuing..."
+fi
+
 echo "Creating framework directories..."
 mkdir -p /var/www/html/storage/framework/{sessions,views,cache,testing}
 mkdir -p /var/www/html/bootstrap/cache

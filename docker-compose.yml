@@ -3,13 +3,15 @@
 volumes:
   storage:
   redis_data:
+  vendor:
 
 services:
   app:
     image: snipe/snipe-it:${APP_VERSION:-latest}
     user: root
     volumes:
-      - ./.env:/var/www/html/.env:ro
+      - ./:/var/www/html
+      - vendor:/var/www/html/vendor
       - ./docker/fix-permissions.sh:/fix-permissions.sh:ro
       - storage:/var/lib/snipeit
     ports:

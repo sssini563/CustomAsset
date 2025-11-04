@@ -9,8 +9,7 @@ services:
     image: snipe/snipe-it:${APP_VERSION:-latest}
     user: root
     volumes:
-      - ./:/var/www/html
-      - ./vendor:/var/www/html/vendor
+      - ./.env:/var/www/html/.env:ro
       - ./docker/fix-permissions.sh:/fix-permissions.sh:ro
       - storage:/var/lib/snipeit
     ports:

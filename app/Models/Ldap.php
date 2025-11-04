@@ -338,6 +338,8 @@ class Ldap extends Model
         }
         if($filter === null) {
             $filter = Setting::getSettings()->ldap_filter;
+            // Replace %s placeholder with * wildcard for LDAP sync queries
+            $filter = str_replace('%s', '*', $filter);
         }
 
         // Set up LDAP pagination for very large databases

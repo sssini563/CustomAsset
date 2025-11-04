@@ -137,9 +137,21 @@
 @stop
 
 @section('moar_scripts')
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Load html5-qrcode from local file instead of CDN -->
+    <script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
     <script>
         let html5QrcodeScanner = null;
+        let libraryLoaded = false;
+
+        // Check if library loaded successfully
+        window.addEventListener('load', function() {
+            if (typeof Html5QrcodeScanner !== 'undefined') {
+                libraryLoaded = true;
+                console.log('Html5QrcodeScanner library loaded successfully');
+            } else {
+                console.error('Html5QrcodeScanner library failed to load');
+            }
+        });
 
         function processQRCode(decodedText) {
             // Tampilkan hasil
@@ -190,6 +202,34 @@
             const qrReaderDiv = document.getElementById('qr-reader');
             const mainOptions = document.getElementById('main-options');
 
+            // Check if library is loaded
+            if (typeof Html5QrcodeScanner === 'undefined') {
+                console.error('Html5QrcodeScanner library not loaded');
+                qrReaderDiv.style.display = 'none';
+                mainOptions.style.display = 'none';
+                infoDiv.className = 'alert alert-danger';
+                infoDiv.style.display = 'block';
+                infoDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <h4><strong>Library QR Code Gagal Dimuat</strong></h4>
+                    <p>Library html5-qrcode tidak berhasil dimuat dari CDN.</p>
+                    <p>Kemungkinan: Koneksi internet lambat atau CDN blocked.</p>
+                    <hr>
+                    <div style="background: #d9edf7; padding: 15px; border-radius: 5px;">
+                        <strong><i class="fas fa-lightbulb"></i> Solusi:</strong><br>
+                        1. Refresh halaman ini (F5)<br>
+                        2. Atau gunakan <strong>Upload Gambar</strong> untuk scan QR code
+                    </div>
+                    <button class="btn btn-primary" onclick="location.reload()">
+                        <i class="fas fa-sync"></i> Refresh Halaman
+                    </button>
+                    <button class="btn btn-default" onclick="resetToMainOptions()">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
+                `;
+                return;
+            }
+
             // Debug info
             console.log('=== CAMERA SCANNER DEBUG ===');
             console.log('Protocol:', window.location.protocol);
@@ -197,6 +237,7 @@
             console.log('Full URL:', window.location.href);
             console.log('Is Secure Context:', window.isSecureContext);
             console.log('Navigator.mediaDevices:', navigator.mediaDevices ? 'Available' : 'NOT Available');
+            console.log('Html5QrcodeScanner:', typeof Html5QrcodeScanner);
 
             // Check if using 127.0.0.1 instead of localhost
             const currentHost = window.location.hostname;
@@ -376,6 +417,13 @@
         function scanFromFile(input) {
             const file = input.files[0];
             if (!file) return;
+
+            // Check if library is loaded
+            if (typeof Html5Qrcode === 'undefined') {
+                alert('Library QR Code belum dimuat. Silakan refresh halaman (F5) dan coba lagi.');
+                input.value = '';
+                return;
+            }
 
             // Hide main options
             document.getElementById('main-options').style.display = 'none';

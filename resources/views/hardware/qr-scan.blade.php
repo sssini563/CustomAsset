@@ -119,8 +119,7 @@
                                 <div class="alert alert-info" id="camera-permission-info" style="display: none;"></div>
 
                                 <!-- QR Reader Area -->
-                                <div id="qr-reader"
-                                    style="width: 100%; max-width: 800px; min-height: 500px; margin: 0 auto; display: none;">
+                                <div id="qr-reader" style="width: 100%; max-width: 600px; margin: 0 auto; display: none;">
                                 </div>
 
                                 <!-- Results -->
@@ -139,6 +138,34 @@
             </div>
         </div>
     </div>
+@stop
+
+@section('moar_styles')
+    <style>
+        /* Make QR scanner more compact and centered */
+        #qr-reader {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #qr-reader video {
+            border-radius: 8px;
+            max-height: 400px !important;
+            object-fit: cover;
+        }
+
+        #qr-reader__scan_region {
+            max-width: 100% !important;
+        }
+
+        #qr-reader__dashboard_section {
+            padding: 10px !important;
+        }
+
+        #qr-reader__dashboard_section_csr button {
+            margin: 5px !important;
+        }
+    </style>
 @stop
 
 @section('moar_scripts')
@@ -322,14 +349,20 @@
                     "qr-reader", {
                         fps: 10,
                         qrbox: {
-                            width: 250,
-                            height: 250
+                            width: 200,
+                            height: 200
                         },
                         aspectRatio: 1.0,
                         showTorchButtonIfSupported: true,
                         formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
                         videoConstraints: {
-                            facingMode: "environment"
+                            facingMode: "environment",
+                            width: {
+                                ideal: 640
+                            },
+                            height: {
+                                ideal: 480
+                            }
                         }
                     },
                     false

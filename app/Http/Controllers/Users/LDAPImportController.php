@@ -65,8 +65,9 @@ class LDAPImportController extends Controller
             return redirect()->back()->withInput()->with('error', $ldap_results['error_message']);
         }
 
-        return redirect()->route('ldap/user')
-            ->with('success', 'LDAP Import successful.')
+        // Redirect back to same page with success message and summary data
+        return redirect()->back()
+            ->with('success', trans('admin/users/message.success.ldap_import'))
             ->with('summary', $ldap_results['summary']);
     }
 }

@@ -55,6 +55,10 @@ class SecurityHeaders
         $feature_policy = implode(';', $feature_policy);
         $response->headers->set('Feature-Policy', $feature_policy);
 
+        // Also set modern Permissions-Policy header (Feature-Policy is deprecated)
+        $permissions_policy = "camera=(self), microphone=(), geolocation=(), interest-cohort=()";
+        $response->headers->set('Permissions-Policy', $permissions_policy);
+
         // Defaults to same-origin if REFERRER_POLICY is not set in the .env
         $response->headers->set('Referrer-Policy', config('app.referrer_policy'));
 

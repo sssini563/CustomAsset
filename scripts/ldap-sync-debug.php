@@ -64,7 +64,10 @@ try {
     // Replace %s with * for sync
     $syncFilter = str_replace('%s', '*', $settings->ldap_filter);
     
-    $results = Ldap::findLdapUsers($settings->ldap_basedn, 10, $syncFilter, $attributes);
+    // Change limit from 10 to -1 for ALL users, or specify a number
+    $limit = $argv[1] ?? 50; // Default 50, or pass as argument: php script.php 100
+    
+    $results = Ldap::findLdapUsers($settings->ldap_basedn, $limit, $syncFilter, $attributes);
     
     echo "Found {$results['count']} users\n\n";
     

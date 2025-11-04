@@ -7,6 +7,7 @@ volumes:
 services:
   app:
     image: snipe/snipe-it:${APP_VERSION:-latest}
+    user: root
     volumes:
       - ./:/var/www/html
       - ./vendor:/var/www/html/vendor
@@ -22,9 +23,12 @@ services:
     entrypoint: ["/bin/bash", "-c"]
     command:
       - |
-        chmod +x /var/www/html/artisan || true
-        chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
-        chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
+        set -e
+        echo "Fixing permissions..."
+        chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+        chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+        chmod +x /var/www/html/artisan
+        echo "Starting application..."
         exec /startup.sh
 
   redis:

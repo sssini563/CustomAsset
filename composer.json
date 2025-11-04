@@ -68,6 +68,7 @@
     "phpdocumentor/reflection-docblock": "^5.1",
     "phpspec/prophecy": "^1.10",
     "pragmarx/google2fa-laravel": "^1.3",
+    "predis/predis": "^3.2",
     "rollbar/rollbar-laravel": "^8.0",
     "spatie/laravel-backup": "^8.8",
     "spatie/laravel-ignition": "^2.0",
@@ -98,7 +99,8 @@
     "laravel": {
       "dont-discover": [
         "rollbar/rollbar-laravel",
-        "laravel/telescope"
+        "laravel/telescope",
+        "nunomaduro/phpinsights"
       ]
     }
   },

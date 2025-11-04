@@ -1,25 +1,42 @@
-version: '3.3'
+# Compose file for production.
+
+volumes:
+  storage:
+  redis_data:
 
 services:
   app:
-    image: snipe/snipe-it:latest
-    container_name: snipeit-app
+    image: snipe/snipe-it:${APP_VERSION:-latest}
+    volumes:
+      - ./:/var/www/html
+      - ./vendor:/var/www/html/vendor
+      - storage:/var/lib/snipeit
+    ports:
+      - "${APP_PORT:-8000}:80"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - snipe-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: snipe-redis
     restart: unless-stopped
     ports:
-      - "8008:80"
-    env_file: .env.dc
-
+      - "6379:6379"
     volumes:
-      # Mount only the project parts needed to override HTML/views safely
-      # Keep vendor and bootstrap cache inside image to avoid missing providers
-      - ./resources/views:/var/www/html/resources/views
-      - ./routes/web.php:/var/www/html/routes/web.php
-      - ./public:/var/www/html/public
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:-snipeit_redis}"
+    networks:
+      - snipe-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
-      # Persist runtime data outside container
-      - ./data/uploads:/var/www/html/public/uploads
-      - ./data/storage:/var/www/html/storage
-      - ./data/snipeit:/var/lib/snipeit
-
-      # Ensure view cache path exists on host and is mounted
-      - ./data/storage/framework/views:/var/www/html/storage/framework/views
+networks:
+  snipe-net:
+    driver: bridge

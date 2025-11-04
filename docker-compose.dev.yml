@@ -1,46 +1,46 @@
-version: '3.3'
+# Development compose file - extends docker-compose.yml with Redis cache
 
 volumes:
-  snipeit-data:
-    driver: local
-
-networks:
-  snipeit-network:
-    driver: bridge
+  storage:
+  redis_data:
 
 services:
   app:
-    # Pakai image overlay yang sudah membake custom code
-    # Mount di bawah akan override file-file tertentu untuk dev cepat
-    image: custom-snipe-it:8.3.3-overlay
-    container_name: snipeit-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: snipe-app
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www/html
+      - storage:/var/lib/snipeit
+    ports:
+      - "${APP_PORT:-8000}:80"
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - snipe-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: snipe-redis
     restart: unless-stopped
     ports:
-      - "8008:80"
-    env_file:
-      - .env.dc
-    environment:
-      PHP_MEMORY_LIMIT: 2G
-      PHP_UPLOAD_MAX_FILESIZE: 100M
-      PHP_POST_MAX_SIZE: 100M
+      - "6379:6379"
     volumes:
-      - snipeit-data:/var/lib/snipeit
-      # Optional: override PHP ini juga saat dev
-      - ./docker/php-custom.ini:/usr/local/etc/php/conf.d/99-custom.ini
-      # Safe mounts untuk pengembangan (JANGAN mount satu folder app/ penuh)
-      - ./resources:/var/www/html/resources
-      - ./database:/var/www/html/database
-      - ./public:/var/www/html/public
-      # Controllers & models khusus Documents agar fitur custom aktif
-      - ./app/Http/Controllers/Documents:/var/www/html/app/Http/Controllers/Documents
-      - ./app/Http/Controllers/SettingsController.php:/var/www/html/app/Http/Controllers/SettingsController.php
-      - ./app/Models/Document.php:/var/www/html/app/Models/Document.php
-      - ./app/Models/DocumentSignature.php:/var/www/html/app/Models/DocumentSignature.php
-      - ./app/Policies/DocumentPolicy.php:/var/www/html/app/Policies/DocumentPolicy.php
-      - ./app/Providers/AuthServiceProvider.php:/var/www/html/app/Providers/AuthServiceProvider.php
-      - ./app/Services/DocumentNumberGenerator.php:/var/www/html/app/Services/DocumentNumberGenerator.php
-      # Mount individual route files saja (hindari routes/console.php)
-      - ./routes/web.php:/var/www/html/routes/web.php:ro
-      - ./routes/api.php:/var/www/html/routes/api.php:ro
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:-snipeit_redis}"
     networks:
-      - snipeit-network
+      - snipe-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  snipe-net:
+    driver: bridge

@@ -79,3 +79,7 @@ storage/ldap_client_tls.key
 
 # Compiled views
 /storage/framework/views/*.php
+
+# Local data volumes and runtime artifacts
+/data/
+/public/.rnd

@@ -12,5 +12,14 @@ storage/**
 node_modules
 .vagrant
 .idea
-.env
+# .env dibutuhkan di container!
 
+# Exclude additional unused/heavy folders from build context
+_archived/
+sample_csvs/
+tests/
+node/
+data/
+public/storage/
+public/vendor/
+public/hot

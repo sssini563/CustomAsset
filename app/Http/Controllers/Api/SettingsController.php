@@ -45,7 +45,11 @@ class SettingsController extends Controller
                     'message' => 'Successfully connected to LDAP server.',
                 ];
 
-                $users = collect(Ldap::findLdapUsers(null,10))->filter(function ($value, $key) {
+                // Replace %s placeholder with * wildcard for test sync
+                $testFilter = str_replace('%s', '*', $settings->ldap_filter);
+                Log::debug("LDAP Test: Using filter: {$testFilter} (original: {$settings->ldap_filter})");
+
+                $users = collect(Ldap::findLdapUsers(null,10,$testFilter))->filter(function ($value, $key) {
                     return is_int($key);
                 })->slice(0, 10)->map(function ($item) use ($settings) {
                     return (object) [

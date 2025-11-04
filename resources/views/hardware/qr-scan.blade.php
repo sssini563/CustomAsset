@@ -137,13 +137,9 @@
 @stop
 
 @section('moar_scripts')
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script>
-        let videoStream = null;
-        let scanningActive = false;
-        let videoElement = null;
-        let canvasElement = null;
-        let canvasContext = null;
+        let html5QrcodeScanner = null;
 
         function processQRCode(decodedText) {
             // Tampilkan hasil
@@ -177,10 +173,30 @@
                 });
         }
 
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log('QR Code detected:', decodedText);
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().catch(err => console.log('Clear error:', err));
+            }
+            processQRCode(decodedText);
+        }
+
+        function onScanFailure(error) {
+            // Ignore scan failures, keep scanning
+        }
+
         async function startCameraScanner() {
             const infoDiv = document.getElementById('camera-permission-info');
             const qrReaderDiv = document.getElementById('qr-reader');
             const mainOptions = document.getElementById('main-options');
+
+            // Debug info
+            console.log('=== CAMERA SCANNER DEBUG ===');
+            console.log('Protocol:', window.location.protocol);
+            console.log('Hostname:', window.location.hostname);
+            console.log('Full URL:', window.location.href);
+            console.log('Is Secure Context:', window.isSecureContext);
+            console.log('Navigator.mediaDevices:', navigator.mediaDevices ? 'Available' : 'NOT Available');
 
             // Check if using 127.0.0.1 instead of localhost
             const currentHost = window.location.hostname;
@@ -231,6 +247,7 @@
             try {
                 // Check if mediaDevices is available
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    console.error('MediaDevices API not available');
                     throw new Error('MediaDevices API not supported');
                 }
 
@@ -249,56 +266,34 @@
                             };
                         }
                     } catch (permErr) {
-                        console.warn('Permission query not supported or failed:', permErr);
-                        // Continue anyway, getUserMedia will handle it
+                        console.warn('Permission query not supported:', permErr);
                     }
                 }
 
-                // Setup video element
-                qrReaderDiv.innerHTML = `
-                    <div style="position: relative; max-width: 640px; margin: 0 auto;">
-                        <video id="qr-video" style="width: 100%; border-radius: 8px; background: #000;"></video>
-                        <canvas id="qr-canvas" style="display: none;"></canvas>
-                        <div style="margin-top: 15px;">
-                            <button class="btn btn-danger" onclick="stopCameraScanner()">
-                                <i class="fas fa-stop"></i> Stop Scanner
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                videoElement = document.getElementById('qr-video');
-                canvasElement = document.getElementById('qr-canvas');
-                canvasContext = canvasElement.getContext('2d');
-
-                console.log('Requesting camera access...');
-                console.log('Current protocol:', window.location.protocol);
-                console.log('Current hostname:', window.location.hostname);
-
-                // Request camera with simpler constraints first
-                videoStream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: "environment",
-                        width: {
-                            ideal: 1280
+                // Initialize html5-qrcode scanner
+                console.log('Initializing Html5QrcodeScanner...');
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "qr-reader", {
+                        fps: 10,
+                        qrbox: {
+                            width: 250,
+                            height: 250
                         },
-                        height: {
-                            ideal: 720
+                        aspectRatio: 1.0,
+                        showTorchButtonIfSupported: true,
+                        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+                        videoConstraints: {
+                            facingMode: "environment"
                         }
-                    }
-                });
+                    },
+                    false
+                );
 
-                console.log('Camera access granted!');
+                console.log('Rendering scanner...');
+                await html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 
-                videoElement.srcObject = videoStream;
-                videoElement.setAttribute('playsinline', true);
-                await videoElement.play();
-
-                infoDiv.innerHTML = '<i class="fas fa-camera"></i> Scanner aktif - Arahkan ke QR code...';
-                infoDiv.className = 'alert alert-success';
-
-                scanningActive = true;
-                requestAnimationFrame(scanQRCode);
+                console.log('Scanner initialized successfully');
+                infoDiv.style.display = 'none';
 
             } catch (err) {
                 console.error('Camera Error:', err);
@@ -378,47 +373,6 @@
             }
         }
 
-        function scanQRCode() {
-            if (!scanningActive || !videoElement || videoElement.readyState !== videoElement.HAVE_ENOUGH_DATA) {
-                if (scanningActive) {
-                    requestAnimationFrame(scanQRCode);
-                }
-                return;
-            }
-
-            canvasElement.height = videoElement.videoHeight;
-            canvasElement.width = videoElement.videoWidth;
-            canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-
-            const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: "dontInvert",
-            });
-
-            if (code && code.data) {
-                console.log('QR Code detected:', code.data);
-                stopCameraScanner();
-                processQRCode(code.data);
-                return;
-            }
-
-            requestAnimationFrame(scanQRCode);
-        }
-
-        function stopCameraScanner() {
-            scanningActive = false;
-
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
-
-            if (videoElement) {
-                videoElement.srcObject = null;
-                videoElement = null;
-            }
-        }
-
         function scanFromFile(input) {
             const file = input.files[0];
             if (!file) return;
@@ -427,62 +381,30 @@
             document.getElementById('main-options').style.display = 'none';
 
             const infoDiv = document.getElementById('camera-permission-info');
-            const qrReaderDiv = document.getElementById('qr-reader');
-
             infoDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses gambar...';
             infoDiv.className = 'alert alert-info';
             infoDiv.style.display = 'block';
-            qrReaderDiv.style.display = 'none';
 
-            // Create image element to load the file
-            const img = new Image();
-            const reader = new FileReader();
+            const html5QrCode = new Html5Qrcode("qr-reader");
 
-            reader.onload = function(e) {
-                img.src = e.target.result;
-            };
-
-            img.onload = function() {
-                // Create canvas to draw image
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                context.drawImage(img, 0, 0);
-
-                // Get image data and scan for QR code
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-                if (code && code.data) {
+            html5QrCode.scanFile(file, true)
+                .then(decodedText => {
+                    console.log('QR Code from file:', decodedText);
                     infoDiv.style.display = 'none';
-                    processQRCode(code.data);
-                } else {
+                    processQRCode(decodedText);
+                })
+                .catch(err => {
+                    console.error('File scan error:', err);
                     infoDiv.className = 'alert alert-danger';
                     infoDiv.innerHTML = `
                         <i class="fas fa-exclamation-triangle"></i> 
                         <strong>Gagal Membaca QR Code</strong><br>
-                        Pastikan gambar mengandung QR code yang jelas dan tidak blur.<br><br>
+                        ${err || 'Pastikan gambar mengandung QR code yang jelas dan tidak blur.'}<br><br>
                         <button class="btn btn-primary" onclick="resetToMainOptions()">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </button>
                     `;
-                }
-            };
-
-            img.onerror = function() {
-                infoDiv.className = 'alert alert-danger';
-                infoDiv.innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i> 
-                    <strong>Gagal Memuat Gambar</strong><br>
-                    File tidak valid atau rusak.<br><br>
-                    <button class="btn btn-primary" onclick="resetToMainOptions()">
-                        <i class="fas fa-arrow-left"></i> Kembali
-                    </button>
-                `;
-            };
-
-            reader.readAsDataURL(file);
+                });
 
             // Reset input untuk bisa upload file yang sama lagi
             input.value = '';
@@ -520,7 +442,10 @@
         }
 
         function resetToMainOptions() {
-            stopCameraScanner();
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().catch(err => console.log('Clear error:', err));
+                html5QrcodeScanner = null;
+            }
 
             document.getElementById('main-options').style.display = 'block';
             document.getElementById('manual-input-form').style.display = 'none';

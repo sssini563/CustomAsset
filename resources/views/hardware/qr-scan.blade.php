@@ -137,9 +137,13 @@
 @stop
 
 @section('moar_scripts')
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script>
-        let html5QrcodeScanner = null;
+        let videoStream = null;
+        let scanningActive = false;
+        let videoElement = null;
+        let canvasElement = null;
+        let canvasContext = null;
 
         function processQRCode(decodedText) {
             // Tampilkan hasil
@@ -173,19 +177,6 @@
                 });
         }
 
-        function onScanSuccess(decodedText, decodedResult) {
-            // Hentikan scanner
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear();
-            }
-            processQRCode(decodedText);
-        }
-
-        function onScanFailure(error) {
-            // Handle scan failure, usually better to ignore and keep scanning
-            console.warn(`QR Code scan error: ${error}`);
-        }
-
         async function startCameraScanner() {
             const infoDiv = document.getElementById('camera-permission-info');
             const qrReaderDiv = document.getElementById('qr-reader');
@@ -195,7 +186,6 @@
             const currentHost = window.location.hostname;
             const isLocalIP = currentHost === '127.0.0.1';
             const isHTTP = window.location.protocol === 'http:';
-            const isLocalhost = currentHost === 'localhost';
 
             // Show warning if using 127.0.0.1 on HTTP
             if (isLocalIP && isHTTP) {
@@ -223,21 +213,6 @@
                         </button>
                     </div>
                     
-                    <details style="margin-top: 15px; text-align: left;">
-                        <summary style="cursor: pointer; font-weight: bold; color: #337ab7;">
-                            <i class="fas fa-info-circle"></i> Alternatif Lain (Klik untuk lihat)
-                        </summary>
-                        <div style="background: #f5f5f5; padding: 15px; margin-top: 10px; border-radius: 5px;">
-                            <strong>Opsi 2: Enable Chrome Flags (Advanced)</strong><br>
-                            1. Buka tab baru: <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code><br>
-                            2. Tambahkan: <code>http://127.0.0.1:8000</code><br>
-                            3. Set "Enable" dan restart Chrome<br><br>
-                            
-                            <strong>Opsi 3: Setup HTTPS (Production)</strong><br>
-                            Setup SSL certificate untuk akses HTTPS yang secure.
-                        </div>
-                    </details>
-                    
                     <hr>
                     <button class="btn btn-primary" onclick="resetToMainOptions()">
                         <i class="fas fa-arrow-left"></i> Kembali & Gunakan Upload/Manual
@@ -259,44 +234,49 @@
                     throw new Error('MediaDevices API not supported');
                 }
 
-                // Test camera access first using getUserMedia
+                // Setup video element
+                qrReaderDiv.innerHTML = `
+                    <div style="position: relative; max-width: 640px; margin: 0 auto;">
+                        <video id="qr-video" style="width: 100%; border-radius: 8px; background: #000;"></video>
+                        <canvas id="qr-canvas" style="display: none;"></canvas>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-danger" onclick="stopCameraScanner()">
+                                <i class="fas fa-stop"></i> Stop Scanner
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                videoElement = document.getElementById('qr-video');
+                canvasElement = document.getElementById('qr-canvas');
+                canvasContext = canvasElement.getContext('2d');
+
                 console.log('Requesting camera access...');
-                const stream = await navigator.mediaDevices.getUserMedia({
+                videoStream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: "environment"
+                        facingMode: {
+                            ideal: "environment"
+                        },
+                        width: {
+                            ideal: 1280
+                        },
+                        height: {
+                            ideal: 720
+                        }
                     }
                 });
 
-                // Stop the test stream immediately
-                stream.getTracks().forEach(track => track.stop());
-                console.log('Camera access granted!');
+                videoElement.srcObject = videoStream;
+                videoElement.setAttribute('playsinline', true);
+                await videoElement.play();
 
-                // Now initialize the scanner
-                html5QrcodeScanner = new Html5QrcodeScanner(
-                    "qr-reader", {
-                        fps: 10,
-                        qrbox: {
-                            width: 400,
-                            height: 400
-                        },
-                        aspectRatio: 1.0,
-                        showTorchButtonIfSupported: true,
-                        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
-                    },
-                    /* verbose= */
-                    false
-                );
+                infoDiv.innerHTML = '<i class="fas fa-camera"></i> Scanner aktif - Arahkan ke QR code...';
+                infoDiv.className = 'alert alert-success';
 
-                html5QrcodeScanner.render(onScanSuccess, onScanFailure).then(() => {
-                    // Sembunyikan pesan info setelah scanner berhasil diinisialisasi
-                    infoDiv.style.display = 'none';
-                    console.log('Scanner initialized successfully');
-                }).catch(err => {
-                    throw err;
-                });
+                scanningActive = true;
+                requestAnimationFrame(scanQRCode);
 
             } catch (err) {
-                // Tampilkan error jika ada masalah
                 console.error('Camera Error:', err);
                 qrReaderDiv.style.display = 'none';
                 infoDiv.className = 'alert alert-danger';
@@ -310,13 +290,8 @@
                         <p>Browser memblokir akses kamera karena situs tidak secure (HTTP).</p>
                         
                         <div style="background: #fff; padding: 15px; border-radius: 5px; margin: 15px 0; text-align: left;">
-                            <strong>✅ Solusi 1: Gunakan localhost (RECOMMENDED)</strong><br>
-                            Ganti URL dari <code>http://127.0.0.1:8000</code> ke <code>http://localhost:8000</code><br><br>
-                            
-                            <strong>✅ Solusi 2: Enable Chrome Flags</strong><br>
-                            1. Buka: <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code><br>
-                            2. Masukkan URL: <code>${window.location.origin}</code><br>
-                            3. Klik "Enable" dan restart Chrome
+                            <strong>✅ Solusi: Gunakan localhost atau HTTPS</strong><br>
+                            Ganti URL dari <code>http://127.0.0.1:8000</code> ke <code>http://localhost:8000</code>
                         </div>
                     `;
                 } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
@@ -324,14 +299,12 @@
                         <i class="fas fa-exclamation-triangle"></i> 
                         <h4><strong>Kamera Tidak Ditemukan</strong></h4>
                         <p>Tidak ada kamera yang terdeteksi di perangkat Anda.</p>
-                        <p class="text-muted">Pastikan kamera terpasang dan tidak digunakan aplikasi lain.</p>
                     `;
                 } else if (err.name === 'NotSupportedError' || err.message === 'MediaDevices API not supported') {
                     errorHTML = `
                         <i class="fas fa-exclamation-triangle"></i> 
                         <h4><strong>Browser Tidak Support</strong></h4>
-                        <p>Browser Anda tidak mendukung akses kamera atau situs ini tidak secure (HTTPS).</p>
-                        <p class="text-muted">Coba gunakan browser Chrome/Firefox versi terbaru.</p>
+                        <p>Browser Anda tidak mendukung akses kamera.</p>
                     `;
                 } else {
                     errorHTML = `
@@ -356,6 +329,47 @@
             }
         }
 
+        function scanQRCode() {
+            if (!scanningActive || !videoElement || videoElement.readyState !== videoElement.HAVE_ENOUGH_DATA) {
+                if (scanningActive) {
+                    requestAnimationFrame(scanQRCode);
+                }
+                return;
+            }
+
+            canvasElement.height = videoElement.videoHeight;
+            canvasElement.width = videoElement.videoWidth;
+            canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+            const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                inversionAttempts: "dontInvert",
+            });
+
+            if (code && code.data) {
+                console.log('QR Code detected:', code.data);
+                stopCameraScanner();
+                processQRCode(code.data);
+                return;
+            }
+
+            requestAnimationFrame(scanQRCode);
+        }
+
+        function stopCameraScanner() {
+            scanningActive = false;
+
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+
+            if (videoElement) {
+                videoElement.srcObject = null;
+                videoElement = null;
+            }
+        }
+
         function scanFromFile(input) {
             const file = input.files[0];
             if (!file) return;
@@ -364,29 +378,62 @@
             document.getElementById('main-options').style.display = 'none';
 
             const infoDiv = document.getElementById('camera-permission-info');
+            const qrReaderDiv = document.getElementById('qr-reader');
+
             infoDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses gambar...';
             infoDiv.className = 'alert alert-info';
             infoDiv.style.display = 'block';
+            qrReaderDiv.style.display = 'none';
 
-            const html5QrCode = new Html5Qrcode("qr-reader");
+            // Create image element to load the file
+            const img = new Image();
+            const reader = new FileReader();
 
-            html5QrCode.scanFile(file, true)
-                .then(decodedText => {
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+
+            img.onload = function() {
+                // Create canvas to draw image
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                context.drawImage(img, 0, 0);
+
+                // Get image data and scan for QR code
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code && code.data) {
                     infoDiv.style.display = 'none';
-                    processQRCode(decodedText);
-                })
-                .catch(err => {
+                    processQRCode(code.data);
+                } else {
                     infoDiv.className = 'alert alert-danger';
                     infoDiv.innerHTML = `
                         <i class="fas fa-exclamation-triangle"></i> 
                         <strong>Gagal Membaca QR Code</strong><br>
-                        ${err || 'Pastikan gambar mengandung QR code yang jelas dan tidak blur.'}<br><br>
+                        Pastikan gambar mengandung QR code yang jelas dan tidak blur.<br><br>
                         <button class="btn btn-primary" onclick="resetToMainOptions()">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </button>
                     `;
-                    console.error('File scan error:', err);
-                });
+                }
+            };
+
+            img.onerror = function() {
+                infoDiv.className = 'alert alert-danger';
+                infoDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <strong>Gagal Memuat Gambar</strong><br>
+                    File tidak valid atau rusak.<br><br>
+                    <button class="btn btn-primary" onclick="resetToMainOptions()">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
+                `;
+            };
+
+            reader.readAsDataURL(file);
 
             // Reset input untuk bisa upload file yang sama lagi
             input.value = '';
@@ -424,17 +471,14 @@
         }
 
         function resetToMainOptions() {
+            stopCameraScanner();
+
             document.getElementById('main-options').style.display = 'block';
             document.getElementById('manual-input-form').style.display = 'none';
             document.getElementById('qr-reader').style.display = 'none';
             document.getElementById('camera-permission-info').style.display = 'none';
             document.getElementById('qr-reader-results').style.display = 'none';
             document.getElementById('asset-link-container').style.display = 'none';
-
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().catch(err => console.log('Already cleared'));
-                html5QrcodeScanner = null;
-            }
         }
 
         // Check camera status on page load

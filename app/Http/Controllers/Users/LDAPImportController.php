@@ -55,19 +55,27 @@ class LDAPImportController extends Controller
         // Collect and parse JSON summary.
         $ldap_results_json = Artisan::output();
         $ldap_results = json_decode($ldap_results_json, true);
+        
+        \Log::debug('LDAP Sync Raw Output: ' . $ldap_results_json);
+        \Log::debug('LDAP Sync Parsed Results: ' . print_r($ldap_results, true));
+        
         if (!$ldap_results) {
             return redirect()->back()->withInput()->with('error', trans('general.no_results'));
         }
 
         // Direct user to appropriate status page.
-        if ($ldap_results['error']) {
+        if (isset($ldap_results['error']) && $ldap_results['error']) {
 
             return redirect()->back()->withInput()->with('error', $ldap_results['error_message']);
         }
 
         // Redirect back to same page with success message and summary data
+        $summary = $ldap_results['summary'] ?? [];
+        
+        \Log::debug('LDAP Sync Summary Count: ' . count($summary));
+        
         return redirect()->back()
             ->with('success', trans('admin/users/message.success.ldap_import'))
-            ->with('summary', $ldap_results['summary']);
+            ->with('summary', $summary);
     }
 }

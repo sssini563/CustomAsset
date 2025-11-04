@@ -10,27 +10,23 @@ $app = require_once __DIR__ . '/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-use Illuminate\Support\Facades\DB;
+use App\Models\Setting;
 
 echo "=== Current LDAP Settings in Database ===\n\n";
 
-// Get all LDAP-related settings
-$ldapSettings = DB::table('settings')
-    ->where('key', 'like', '%ldap%')
-    ->orWhere('key', 'like', '%ad_%')
-    ->get();
+// Get LDAP settings - Snipe-IT uses single row with columns
+$settings = Setting::getLdapSettings()->first();
 
-if ($ldapSettings->isEmpty()) {
-    echo "❌ No LDAP settings found in database.\n";
+if (!$settings) {
+    echo "❌ No settings found in database.\n";
     exit(1);
 }
 
-echo "Found " . $ldapSettings->count() . " LDAP settings:\n";
-echo str_repeat("-", 70) . "\n\n";
-
-$criticalSettings = [
+$ldapFields = [
     'ldap_enabled',
     'ldap_server',
+    'ldap_port',
+    'ldap_tls',
     'ldap_uname',
     'ldap_pword',
     'ldap_basedn',
@@ -43,22 +39,30 @@ $criticalSettings = [
     'ldap_active_flag',
     'ldap_emp_num',
     'ldap_email',
+    'ldap_server_cert_ignore',
+    'ldap_pw_sync',
+    'ad_domain',
 ];
+
+echo "LDAP Configuration:\n";
+echo str_repeat("-", 70) . "\n\n";
 
 $currentSettings = [];
 
-foreach ($ldapSettings as $setting) {
-    $value = $setting->value;
+foreach ($ldapFields as $field) {
+    $value = $settings->$field ?? 'NOT SET';
     
     // Don't show password
-    if (strpos($setting->key, 'pword') !== false || strpos($setting->key, 'password') !== false) {
-        $value = '********';
+    if (strpos($field, 'pword') !== false || strpos($field, 'password') !== false) {
+        if (!empty($value) && $value !== 'NOT SET') {
+            $value = '******** (encrypted)';
+        }
     }
     
-    $currentSettings[$setting->key] = $setting->value;
+    $currentSettings[$field] = $settings->$field ?? null;
     
-    $marker = in_array($setting->key, $criticalSettings) ? '⭐' : '  ';
-    echo "{$marker} {$setting->key}: {$value}\n";
+    $marker = ($settings->$field ?? null) ? '✓' : '  ';
+    echo "{$marker} {$field}: {$value}\n";
 }
 
 echo "\n" . str_repeat("=", 70) . "\n";
@@ -66,75 +70,103 @@ echo "CRITICAL SETTINGS ANALYSIS:\n\n";
 
 // Check critical settings
 $issues = [];
+$sqlFixes = [];
 
 // 1. Check filter format
-if (isset($currentSettings['ldap_filter'])) {
-    $filter = $currentSettings['ldap_filter'];
-    echo "✓ LDAP Filter: {$filter}\n";
+$filter = $currentSettings['ldap_filter'];
+if ($filter) {
+    echo "LDAP Filter: {$filter}\n";
     
     // Check for common issues
-    if (strpos($filter, '(') === 0) {
-        $issues[] = "LDAP Filter starts with '(' - this may cause 'Bad search filter' error";
-        echo "  ⚠️  WARNING: Filter has parentheses at the start\n";
+    if (strpos($filter, '(') === 0 || substr($filter, -1) === ')') {
+        $issues[] = "LDAP Filter has parentheses - this causes 'Bad search filter' error";
+        echo "  ❌ ERROR: Filter has parentheses\n";
         echo "  Current: {$filter}\n";
-        echo "  Should be: " . trim($filter, '()') . "\n";
+        $fixedFilter = trim($filter, '()');
+        // Also check for nested parentheses
+        $fixedFilter = preg_replace('/^\(&?\(?(.*?)\)?\)$/', '$1', $fixedFilter);
+        echo "  Should be: {$fixedFilter}\n";
+        $sqlFixes[] = "UPDATE settings SET ldap_filter = '{$fixedFilter}' WHERE id = {$settings->id};";
     }
     
-    if (!strpos($filter, '%s')) {
+    if (strpos($filter, '%s') === false) {
         $issues[] = "LDAP Filter doesn't contain %s placeholder";
-        echo "  ⚠️  WARNING: Filter missing %s placeholder\n";
+        echo "  ❌ ERROR: Filter missing %s placeholder\n";
+        $sqlFixes[] = "UPDATE settings SET ldap_filter = 'sAMAccountName=%s' WHERE id = {$settings->id};";
+    }
+    
+    if (empty($issues)) {
+        echo "  ✅ Filter format looks OK\n";
     }
 } else {
     $issues[] = "LDAP Filter not set";
     echo "❌ LDAP Filter: NOT SET\n";
+    $sqlFixes[] = "UPDATE settings SET ldap_filter = 'sAMAccountName=%s' WHERE id = {$settings->id};";
 }
+echo "\n";
 
 // 2. Check auth filter query
-if (isset($currentSettings['ldap_auth_filter_query'])) {
-    $authQuery = $currentSettings['ldap_auth_filter_query'];
-    echo "✓ LDAP Auth Filter Query: {$authQuery}\n";
+$authQuery = $currentSettings['ldap_auth_filter_query'];
+if ($authQuery) {
+    echo "LDAP Auth Filter Query: {$authQuery}\n";
     
-    if (strpos($authQuery, '(') !== false) {
+    if (strpos($authQuery, '(') !== false || strpos($authQuery, ')') !== false) {
         $issues[] = "Auth Filter Query contains parentheses";
-        echo "  ⚠️  WARNING: Auth query has parentheses\n";
+        echo "  ⚠️  WARNING: Auth query has parentheses (may cause issues)\n";
         echo "  Current: {$authQuery}\n";
-        echo "  Should be: " . str_replace(['(', ')'], '', $authQuery) . "\n";
+        $fixedAuth = str_replace(['(', ')'], '', $authQuery);
+        echo "  Recommend: {$fixedAuth} (or leave empty)\n";
+        $sqlFixes[] = "UPDATE settings SET ldap_auth_filter_query = '' WHERE id = {$settings->id};";
+    } else {
+        echo "  ✅ Auth filter format OK\n";
     }
 } else {
-    echo "✓ LDAP Auth Filter Query: NOT SET (OK)\n";
+    echo "LDAP Auth Filter Query: (empty)\n";
+    echo "  ✅ Empty is OK\n";
 }
+echo "\n";
 
 // 3. Check base DN
-if (isset($currentSettings['ldap_basedn'])) {
-    $baseDn = $currentSettings['ldap_basedn'];
-    echo "✓ Base Bind DN: {$baseDn}\n";
+$baseDn = $currentSettings['ldap_basedn'];
+if ($baseDn) {
+    echo "Base Bind DN: {$baseDn}\n";
     
-    if (strpos($baseDn, 'OU=Users') !== false) {
-        $issues[] = "Base DN is specific to OU=Users (may miss users in Factory/Head Office)";
-        echo "  ⚠️  WARNING: Base DN may be too specific\n";
+    if (strpos($baseDn, 'OU=Users,OU=') !== false || strpos($baseDn, 'OU=Factory') !== false || strpos($baseDn, 'OU=Head Office') !== false) {
+        $issues[] = "Base DN is too specific (won't find users in other OUs)";
+        echo "  ⚠️  WARNING: Base DN is too specific\n";
         echo "  Current: {$baseDn}\n";
         echo "  Recommended: DC=kindairy,DC=com\n";
+        $sqlFixes[] = "UPDATE settings SET ldap_basedn = 'DC=kindairy,DC=com' WHERE id = {$settings->id};";
+    } else {
+        echo "  ✅ Base DN looks good\n";
     }
 } else {
     $issues[] = "Base DN not set";
     echo "❌ Base Bind DN: NOT SET\n";
+    $sqlFixes[] = "UPDATE settings SET ldap_basedn = 'DC=kindairy,DC=com' WHERE id = {$settings->id};";
 }
+echo "\n";
 
 // 4. Check username field
-if (isset($currentSettings['ldap_username_field'])) {
-    $usernameField = $currentSettings['ldap_username_field'];
-    echo "✓ Username Field: {$usernameField}\n";
+$usernameField = $currentSettings['ldap_username_field'];
+if ($usernameField) {
+    echo "Username Field: {$usernameField}\n";
     
     if (strtolower($usernameField) !== 'samaccountname') {
         $issues[] = "Username field is '{$usernameField}' (should be 'samaccountname' for AD)";
         echo "  ⚠️  WARNING: For Active Directory, use 'samaccountname'\n";
+        $sqlFixes[] = "UPDATE settings SET ldap_username_field = 'samaccountname' WHERE id = {$settings->id};";
+    } else {
+        echo "  ✅ Username field correct\n";
     }
 } else {
     $issues[] = "Username field not set";
     echo "❌ Username Field: NOT SET\n";
+    $sqlFixes[] = "UPDATE settings SET ldap_username_field = 'samaccountname' WHERE id = {$settings->id};";
 }
+echo "\n";
 
-echo "\n" . str_repeat("=", 70) . "\n";
+echo str_repeat("=", 70) . "\n";
 
 if (count($issues) > 0) {
     echo "⚠️  ISSUES FOUND (" . count($issues) . "):\n\n";
@@ -142,43 +174,45 @@ if (count($issues) > 0) {
         echo ($i + 1) . ". {$issue}\n";
     }
     
-    echo "\n" . str_repeat("=", 70) . "\n";
-    echo "FIX RECOMMENDATIONS:\n\n";
-    
-    echo "Run these SQL commands to fix:\n\n";
-    
-    // Generate fix SQL
-    if (isset($currentSettings['ldap_filter'])) {
-        $filter = $currentSettings['ldap_filter'];
-        if (strpos($filter, '(') === 0) {
-            $fixedFilter = 'sAMAccountName=%s';
-            echo "-- Fix LDAP Filter\n";
-            echo "UPDATE settings SET value = '{$fixedFilter}' WHERE key = 'ldap_filter';\n\n";
+    if (count($sqlFixes) > 0) {
+        echo "\n" . str_repeat("=", 70) . "\n";
+        echo "SQL FIX COMMANDS:\n\n";
+        echo "Copy and run these commands in MySQL/MariaDB:\n\n";
+        
+        foreach ($sqlFixes as $sql) {
+            echo $sql . "\n";
         }
+        
+        echo "\n-- Or use artisan tinker:\n";
+        echo "php artisan tinker\n";
+        echo "\$settings = App\\Models\\Setting::first();\n";
+        echo "\$settings->ldap_filter = 'sAMAccountName=%s';\n";
+        echo "\$settings->ldap_basedn = 'DC=kindairy,DC=com';\n";
+        echo "\$settings->ldap_username_field = 'samaccountname';\n";
+        echo "\$settings->ldap_auth_filter_query = '';\n";
+        echo "\$settings->save();\n";
     }
-    
-    if (isset($currentSettings['ldap_basedn']) && strpos($currentSettings['ldap_basedn'], 'OU=Users') !== false) {
-        echo "-- Fix Base DN to cover all OUs\n";
-        echo "UPDATE settings SET value = 'DC=kindairy,DC=com' WHERE key = 'ldap_basedn';\n\n";
-    }
-    
-    if (isset($currentSettings['ldap_auth_filter_query']) && !empty($currentSettings['ldap_auth_filter_query'])) {
-        echo "-- Clear Auth Filter Query (optional)\n";
-        echo "UPDATE settings SET value = '' WHERE key = 'ldap_auth_filter_query';\n\n";
-    }
-    
-    echo "-- Or reset to recommended values\n";
-    echo "UPDATE settings SET value = 'sAMAccountName=%s' WHERE key = 'ldap_filter';\n";
-    echo "UPDATE settings SET value = 'DC=kindairy,DC=com' WHERE key = 'ldap_basedn';\n";
-    echo "UPDATE settings SET value = 'samaccountname' WHERE key = 'ldap_username_field';\n";
-    echo "UPDATE settings SET value = '' WHERE key = 'ldap_auth_filter_query';\n";
     
 } else {
-    echo "✅ No critical issues found with LDAP settings!\n";
+    echo "✅ All LDAP settings look correct!\n";
     echo "\nIf still getting errors, check:\n";
-    echo "1. Network connectivity to LDAP server\n";
-    echo "2. LDAP credentials are correct\n";
-    echo "3. PHP ldap extension is enabled\n";
+    echo "1. Network connectivity: ping 10.10.10.101\n";
+    echo "2. LDAP port open: telnet 10.10.10.101 389\n";
+    echo "3. LDAP credentials are correct\n";
+    echo "4. PHP ldap extension enabled: php -m | grep ldap\n";
 }
+
+echo "\n" . str_repeat("=", 70) . "\n";
+echo "RECOMMENDED SETTINGS FOR ACTIVE DIRECTORY:\n\n";
+echo "ldap_server: ldap://10.10.10.101\n";
+echo "ldap_port: 389\n";
+echo "ldap_basedn: DC=kindairy,DC=com\n";
+echo "ldap_filter: sAMAccountName=%s\n";
+echo "ldap_username_field: samaccountname\n";
+echo "ldap_fname_field: givenname\n";
+echo "ldap_lname_field: sn\n";
+echo "ldap_email: mail\n";
+echo "ldap_active_flag: useraccountcontrol\n";
+echo "ldap_auth_filter_query: (empty or 'objectClass=user')\n";
 
 echo "\n";

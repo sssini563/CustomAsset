@@ -42,6 +42,7 @@ echo "LDAP Port: " . $settings->ldap_port . "\n";
 echo "LDAP Base DN: " . $settings->ldap_basedn . "\n";
 echo "LDAP Username Field: " . $settings->ldap_username_field . "\n";
 echo "LDAP Filter: " . $settings->ldap_filter . "\n";
+echo "LDAP Auth Filter Query: " . $settings->ldap_auth_filter_query . "\n";
 echo "LDAP Version: " . $settings->ldap_version . "\n";
 echo "LDAP TLS: " . ($settings->ldap_tls ? 'YES' : 'NO') . "\n";
 echo "Is AD: " . ($settings->is_ad ? 'YES' : 'NO') . "\n";

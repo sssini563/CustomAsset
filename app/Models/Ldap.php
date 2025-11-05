@@ -149,11 +149,17 @@ class Ldap extends Model
             }
         }
 
-        $filterQuery = $settings->ldap_auth_filter_query.$username;
         $filter = Setting::getSettings()->ldap_filter; //FIXME - this *does* respect the ldap filter, but I believe that AdLdap2 did *not*.
         // Replace %s placeholder with username for LDAP filter
         $filter = str_replace('%s', $username, $filter);
-        $filterQuery = "({$filter}({$filterQuery}))";
+        
+        // Build filter query - use ldap_filter if available, otherwise use ldap_auth_filter_query
+        if (!empty($filter) && $filter !== 'sAMAccountName=%s') {
+            $filterQuery = "({$filter})";
+        } else {
+            $filterQuery = $settings->ldap_auth_filter_query.$username;
+            $filterQuery = "({$filterQuery})";
+        }
 
         Log::debug('Filter query: '.$filterQuery);
 

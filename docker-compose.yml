@@ -20,10 +20,13 @@ services:
       - "${APP_PORT:-8000}:80"
     env_file:
       - .env
+    depends_on:
+      - redis
     networks:
       - snipe-net
     entrypoint: ["/bin/bash"]
     command: ["/fix-permissions.sh"]
+
 
 networks:
   snipe-net:

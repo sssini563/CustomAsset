@@ -1102,28 +1102,44 @@ span.monospace {
   font-family: monospace, monospace;
 }
 legend.highlight {
-  background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
-  border: none;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 12px 20px;
-  margin-bottom: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  padding: 10px 20px !important;
+  margin-bottom: 15px !important;
+  margin-top: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+  width: 100% !important;
+  display: block !important;
 }
 legend.highlight a {
-  color: #ffffff;
-  cursor: pointer;
-  text-decoration: none;
-  font-weight: 600;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  display: block !important;
+  width: 100% !important;
 }
 legend.highlight a:hover {
-  color: #f0f0f0;
-  text-decoration: underline;
+  color: #ecf0f1 !important;
+  text-decoration: none !important;
+}
+legend.highlight a i.fa-caret-down,
+legend.highlight a i.fa-caret-right {
+  float: right !important;
+  margin-top: 2px !important;
 }
 fieldset.bottom-padded {
   padding-bottom: 20px;
+  background: transparent !important;
+  border: none !important;
+  margin: 0 !important;
+}
+fieldset.bottom-padded .form-group {
+  background: transparent !important;
 }
 caption.tableCaption {
   font-size: 18px;

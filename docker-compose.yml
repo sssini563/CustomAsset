@@ -20,29 +20,10 @@ services:
       - "${APP_PORT:-8000}:80"
     env_file:
       - .env
-    depends_on:
-      - redis
     networks:
       - snipe-net
     entrypoint: ["/bin/bash"]
     command: ["/fix-permissions.sh"]
-
-  redis:
-    image: redis:7-alpine
-    container_name: snipe-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:-snipeit_redis}"
-    networks:
-      - snipe-net
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
 
 networks:
   snipe-net:

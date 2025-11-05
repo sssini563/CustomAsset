@@ -189,60 +189,23 @@
             // Tampilkan hasil
             const resultsDiv = document.getElementById("qr-reader-results");
             resultsDiv.style.display = "block";
-            resultsDiv.className = "alert alert-info";
-            resultsDiv.innerHTML =
-                `<i class="fas fa-spinner fa-spin"></i> Mencari asset dengan ID: <strong>${decodedText}</strong>...`;
+            resultsDiv.className = "alert alert-success";
+            resultsDiv.innerHTML = `
+                <i class="fas fa-check-circle"></i> 
+                <strong>QR Code terdeteksi!</strong><br>
+                ID/Kode: <strong>${decodedText}</strong>
+            `;
 
-            // Cari asset berdasarkan ID (bukan tag)
+            // Langsung tampilkan tombol untuk buka asset
             const assetUrl = `{{ url('/') }}/hardware/${encodeURIComponent(decodedText)}`;
+            const linkContainer = document.getElementById("asset-link-container");
+            const assetLink = document.getElementById("asset-detail-link");
 
-            fetch(assetUrl, {
-                    method: 'GET',
-                    redirect: 'follow',
-                    headers: {
-                        'Accept': 'text/html,application/xhtml+xml,application/xml'
-                    }
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response URL:', response.url);
+            assetLink.href = assetUrl;
+            linkContainer.style.display = "block";
 
-                    // Check if it's a 404 page or error
-                    if (response.status === 404) {
-                        throw new Error('Asset not found (404)');
-                    }
-
-                    // If response is OK, asset exists
-                    if (response.ok) {
-                        return assetUrl;
-                    }
-
-                    throw new Error('Asset not found');
-                })
-                .then(url => {
-                    // Tampilkan tombol show detail
-                    const linkContainer = document.getElementById("asset-link-container");
-                    const assetLink = document.getElementById("asset-detail-link");
-                    assetLink.href = url;
-                    linkContainer.style.display = "block";
-
-                    resultsDiv.className = "alert alert-success";
-                    resultsDiv.innerHTML = `
-                        <i class="fas fa-check-circle"></i> 
-                        <strong>{{ trans('general.success') }}!</strong><br>
-                        Asset ditemukan dengan ID: <strong>${decodedText}</strong>
-                    `;
-                })
-                .catch(error => {
-                    console.error('Asset lookup error:', error);
-                    resultsDiv.className = "alert alert-danger";
-                    resultsDiv.innerHTML = `
-                        <i class="fas fa-exclamation-triangle"></i> 
-                        <strong>{{ trans('general.error') }}!</strong><br>
-                        Asset tidak ditemukan dengan ID: <strong>${decodedText}</strong><br><br>
-                        <small>Pastikan asset dengan ID tersebut sudah terdaftar di sistem.</small>
-                    `;
-                });
+            console.log('QR Code scanned:', decodedText);
+            console.log('Asset URL:', assetUrl);
         }
 
         function onScanSuccess(decodedText, decodedResult) {

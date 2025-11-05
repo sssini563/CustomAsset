@@ -47,6 +47,10 @@ Route::group(
                 ->push(trans('general.scan_qr'), route('hardware.qr-scan'))
             );
 
+        // Endpoint for AJAX existence check of an asset by ID (returns JSON)
+        Route::get('check/{assetId}', [AssetsController::class, 'check'])
+            ->name('hardware.check');
+
         Route::get('requested', [AssetsController::class, 'getRequestedIndex'])
             ->name('assets.requested')
             ->breadcrumbs(fn (Trail $trail) =>

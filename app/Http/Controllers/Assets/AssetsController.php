@@ -347,6 +347,28 @@ class AssetsController extends Controller
     }
 
     /**
+     * AJAX check whether an asset exists by ID.
+     * Returns JSON { exists: true, url: '...'} or 404 { exists: false }
+     *
+     * @param int $assetId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function check($assetId)
+    {
+        // Only authenticated users can call this (route is in auth group)
+        $asset = Asset::withTrashed()->find($assetId);
+
+        if ($asset) {
+            return response()->json([
+                'exists' => true,
+                'url' => route('hardware.show', $asset),
+            ], 200);
+        }
+
+        return response()->json(['exists' => false], 404);
+    }
+
+    /**
      * Validate and process asset edit form.
      *
      * @param int $assetId

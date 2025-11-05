@@ -2,7 +2,6 @@
 
 volumes:
   storage:
-  redis_data:
   vendor:
   uploads:
 
@@ -20,8 +19,6 @@ services:
       - "${APP_PORT:-8000}:80"
     env_file:
       - .env
-    depends_on:
-      - redis
     networks:
       - snipe-net
     entrypoint: ["/bin/bash"]

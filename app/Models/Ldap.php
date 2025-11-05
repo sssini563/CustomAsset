@@ -151,6 +151,8 @@ class Ldap extends Model
 
         $filterQuery = $settings->ldap_auth_filter_query.$username;
         $filter = Setting::getSettings()->ldap_filter; //FIXME - this *does* respect the ldap filter, but I believe that AdLdap2 did *not*.
+        // Replace %s placeholder with username for LDAP filter
+        $filter = str_replace('%s', $username, $filter);
         $filterQuery = "({$filter}({$filterQuery}))";
 
         Log::debug('Filter query: '.$filterQuery);

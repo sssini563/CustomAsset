@@ -1177,4 +1177,60 @@ input[name="columnsSearch"] {
   width: 120px;
 }
 
+/* Mobile responsive fixes */
+@media screen and (max-width: 768px) {
+  /* Legend highlight mobile fix */
+  legend.highlight {
+    font-size: 14px !important;
+    padding: 8px 15px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* Table responsive */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Form groups */
+  .form-group .col-md-3,
+  .form-group .col-md-7,
+  .form-group .col-md-9 {
+    width: 100% !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  /* Buttons */
+  .btn {
+    margin-bottom: 5px !important;
+  }
+
+  /* Info boxes */
+  .info-box {
+    margin-bottom: 15px !important;
+  }
+
+  /* Fieldset */
+  fieldset {
+    padding: 10px !important;
+  }
+}
+
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+  legend.highlight {
+    font-size: 13px !important;
+    padding: 6px 12px !important;
+  }
+
+  .box-body {
+    padding: 10px !important;
+  }
+
+  .content {
+    padding: 10px !important;
+  }
+}
+
 /*# sourceMappingURL=overrides.css.map*/

@@ -186,26 +186,64 @@
         });
 
         function processQRCode(decodedText) {
-            // Tampilkan hasil
+            // Prepare UI
             const resultsDiv = document.getElementById("qr-reader-results");
-            resultsDiv.style.display = "block";
-            resultsDiv.className = "alert alert-success";
-            resultsDiv.innerHTML = `
-                <i class="fas fa-check-circle"></i> 
-                <strong>QR Code terdeteksi!</strong><br>
-                ID/Kode: <strong>${decodedText}</strong>
-            `;
-
-            // Langsung tampilkan tombol untuk buka asset
-            const assetUrl = `{{ url('/') }}/hardware/${encodeURIComponent(decodedText)}`;
             const linkContainer = document.getElementById("asset-link-container");
             const assetLink = document.getElementById("asset-detail-link");
+            // hide previous link while checking
+            linkContainer.style.display = "none";
 
-            assetLink.href = assetUrl;
-            linkContainer.style.display = "block";
+            // Show checking status
+            resultsDiv.style.display = "block";
+            resultsDiv.className = "alert alert-info";
+            resultsDiv.innerHTML = `
+                <i class="fas fa-spinner fa-spin"></i>
+                Memeriksa asset dengan ID/Kode: <strong>${decodedText}</strong>...
+            `;
 
-            console.log('QR Code scanned:', decodedText);
-            console.log('Asset URL:', assetUrl);
+            const assetUrl = `{{ url('/') }}/hardware/${encodeURIComponent(decodedText)}`;
+            const checkUrl = `{{ url('/') }}/hardware/check/${encodeURIComponent(decodedText)}`;
+
+            console.log('QR Code scanned (checking):', decodedText);
+            console.log('Check URL:', checkUrl);
+
+            // Call server to verify asset existence and redirect immediately if found
+            fetch(checkUrl, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) return response.json();
+                    // treat non-OK (404) as not found
+                    throw new Error('not-found');
+                })
+                .then(json => {
+                    if (json && json.exists && json.url) {
+                        // Redirect to asset detail page
+                        window.location.href = json.url;
+                    } else {
+                        // Not found - show clear error and manual link
+                        resultsDiv.className = 'alert alert-danger';
+                        resultsDiv.innerHTML = `
+                            <i class="fas fa-times-circle"></i>
+                            Asset dengan ID <strong>${decodedText}</strong> tidak ditemukan.<br><br>
+                            <a href="${assetUrl}" class="btn btn-default">Buka halaman asset (manual)</a>
+                            <button class="btn btn-default" onclick="resetToMainOptions()">Kembali</button>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Asset check error:', err);
+                    resultsDiv.className = 'alert alert-danger';
+                    resultsDiv.innerHTML = `
+                        <i class="fas fa-times-circle"></i>
+                        Asset dengan ID <strong>${decodedText}</strong> tidak ditemukan atau terjadi kesalahan.<br>
+                        Silakan coba input manual atau periksa koneksi.<br><br>
+                        <a href="${assetUrl}" class="btn btn-default">Buka halaman asset (manual)</a>
+                        <button class="btn btn-default" onclick="resetToMainOptions()">Kembali</button>
+                    `;
+                });
         }
 
         function onScanSuccess(decodedText, decodedResult) {

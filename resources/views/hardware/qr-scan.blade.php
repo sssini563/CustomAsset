@@ -191,12 +191,14 @@
             resultsDiv.style.display = "block";
             resultsDiv.className = "alert alert-info";
             resultsDiv.innerHTML =
-                `<i class="fas fa-spinner fa-spin"></i> Mencari asset dengan tag: <strong>${decodedText}</strong>...`;
+                `<i class="fas fa-spinner fa-spin"></i> Mencari asset dengan ID: <strong>${decodedText}</strong>...`;
 
-            // Cari asset berdasarkan tag - follow redirects
-            fetch(`{{ url('/') }}/hardware/bytag/${encodeURIComponent(decodedText)}`, {
+            // Cari asset berdasarkan ID (bukan tag)
+            const assetUrl = `{{ url('/') }}/hardware/${encodeURIComponent(decodedText)}`;
+
+            fetch(assetUrl, {
                     method: 'GET',
-                    redirect: 'follow', // Follow redirects automatically
+                    redirect: 'follow',
                     headers: {
                         'Accept': 'text/html,application/xhtml+xml,application/xml'
                     }
@@ -204,21 +206,15 @@
                 .then(response => {
                     console.log('Response status:', response.status);
                     console.log('Response URL:', response.url);
-                    console.log('Response redirected:', response.redirected);
 
                     // Check if it's a 404 page or error
                     if (response.status === 404) {
                         throw new Error('Asset not found (404)');
                     }
 
-                    // If redirected to asset detail page, it's successful
-                    if (response.ok && response.redirected && response.url.includes('/hardware/')) {
-                        return response.url;
-                    }
-
-                    // If response is OK and URL contains hardware, assume success
-                    if (response.ok && response.url.includes('/hardware/')) {
-                        return response.url;
+                    // If response is OK, asset exists
+                    if (response.ok) {
+                        return assetUrl;
                     }
 
                     throw new Error('Asset not found');
@@ -234,7 +230,7 @@
                     resultsDiv.innerHTML = `
                         <i class="fas fa-check-circle"></i> 
                         <strong>{{ trans('general.success') }}!</strong><br>
-                        Asset ditemukan dengan tag: <strong>${decodedText}</strong>
+                        Asset ditemukan dengan ID: <strong>${decodedText}</strong>
                     `;
                 })
                 .catch(error => {
@@ -243,8 +239,8 @@
                     resultsDiv.innerHTML = `
                         <i class="fas fa-exclamation-triangle"></i> 
                         <strong>{{ trans('general.error') }}!</strong><br>
-                        Asset tidak ditemukan dengan tag: <strong>${decodedText}</strong><br><br>
-                        <small>Pastikan asset dengan tag tersebut sudah terdaftar di sistem.</small>
+                        Asset tidak ditemukan dengan ID: <strong>${decodedText}</strong><br><br>
+                        <small>Pastikan asset dengan ID tersebut sudah terdaftar di sistem.</small>
                     `;
                 });
         }
